@@ -1,3 +1,18 @@
+/**
+ * @file    Logger.cpp
+ * @brief   Implementation of centralized logging service.
+ *
+ * Provides thread-safe singleton logging with timestamped, severity-tagged output.
+ * All log messages are formatted with ISO 8601 timestamps and severity levels for
+ * easy parsing and filtering. The logger uses Qt's qDebug infrastructure for output
+ * redirection flexibility (console, file, custom handlers).
+ *
+ * @author  Kevin Delaney
+ * @date    January 10, 2026
+ * @company Delaney Motorsports, LLC
+ * @address Sarasota, FL
+ */
+
 #include "Logger.h"
 #include <QDebug>
 #include <QDateTime>
