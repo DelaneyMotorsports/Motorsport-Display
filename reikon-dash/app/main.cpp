@@ -1,3 +1,26 @@
+/**
+ * @file    main.cpp
+ * @brief   Application entry point for Reikon Dash.
+ *
+ * Initializes the Qt application framework and QML engine, loading the main App.qml
+ * interface. This file bootstraps the entire Reikon Dash system, including CAN backend
+ * initialization, signal bus setup, and QML context registration. Implements proper
+ * error handling to exit gracefully if QML fails to load.
+ *
+ * Design Philosophy:
+ * - Clean separation of C++ backend and QML frontend
+ * - Fail-fast on initialization errors
+ * - Qt 6 modern practices (QUrl literals, QQmlApplicationEngine)
+ *
+ * Dependencies: Qt 6.x (Gui, Qml, Quick)
+ * Compiler: g++ 7.0+ (C++17), clang 5.0+
+ *
+ * @author  Kevin Delaney
+ * @date    January 10, 2026
+ * @company Delaney Motorsports, LLC
+ * @address Sarasota, FL
+ */
+
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 

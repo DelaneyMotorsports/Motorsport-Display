@@ -1,3 +1,18 @@
+/**
+ * @file    SignalBus.cpp
+ * @brief   Implementation of the SignalBus telemetry distribution system.
+ *
+ * Implements a lightweight publish-subscribe system for distributing vehicle telemetry
+ * signals from CAN bus decoders to QML UI components. Signals are stored as named
+ * QVariant values and changes trigger Qt signals for automatic UI binding updates.
+ * Change detection prevents unnecessary signal emissions for improved performance.
+ *
+ * @author  Kevin Delaney
+ * @date    January 10, 2026
+ * @company Delaney Motorsports, LLC
+ * @address Sarasota, FL
+ */
+
 #include "SignalBus.h"
 
 SignalBus::SignalBus(QObject *parent)
