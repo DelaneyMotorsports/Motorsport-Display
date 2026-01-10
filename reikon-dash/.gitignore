@@ -1,0 +1,47 @@
+#
+# @file    .gitignore
+# @brief   Git ignore rules for Reikon Dash project.
+#
+# Defines files and directories to exclude from version control. Prevents build
+# artifacts, IDE configurations, and OS-specific files from cluttering the repository.
+# Organized by category for easy maintenance and understanding.
+#
+# Philosophy:
+# - Exclude generated files (builds, caches)
+# - Exclude user-specific IDE settings
+# - Include project-level configurations
+# - Keep repository clean and portable across development environments
+#
+# @author  Kevin Delaney
+# @date    January 10, 2026
+# @company Delaney Motorsports, LLC
+# @address Sarasota, FL
+#
+
+# Build directories
+build/
+build-*/
+*.user
+*.user.*
+
+# Qt
+*.autosave
+*.qmlc
+*.jsc
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
