@@ -224,21 +224,70 @@ build_application() {
 configure_kiosk() {
     log_step "Configuring kiosk mode..."
 
-    # Auto-login (if not already configured)
-    if ! grep -q "autologin" /etc/systemd/system/getty.target.wants/getty@tty1.service 2>/dev/null; then
-        log_info "Enabling auto-login..."
-        sudo raspi-config nonint do_boot_behaviour B2 2>/dev/null || true
+    # Detect OS type
+    if [ -f /etc/os-release ]; then
+        . /etc/os-release
+        OS_NAME="$NAME"
+        log_info "Detected OS: $OS_NAME"
     fi
 
-    # Disable screen blanking (if not already configured)
-    if ! grep -q "consoleblank=0" /boot/cmdline.txt 2>/dev/null; then
+    # Detect if desktop environment is installed
+    if dpkg -l 2>/dev/null | grep -qE "xserver-xorg|wayland|lxde|xfce|gnome|desktop"; then
+        HAS_DESKTOP=true
+        log_info "Desktop environment detected"
+    else
+        HAS_DESKTOP=false
+        log_info "No desktop environment detected - configuring console mode"
+    fi
+
+    # Configure auto-login based on OS
+    if [[ "$OS_NAME" == *"Raspberry Pi"* ]]; then
+        # Raspberry Pi OS - use raspi-config
+        if ! grep -q "autologin" /etc/systemd/system/getty.target.wants/getty@tty1.service 2>/dev/null; then
+            log_info "Enabling auto-login (Pi OS)..."
+            sudo raspi-config nonint do_boot_behaviour B2 2>/dev/null || true
+        fi
+    else
+        # Debian or other - configure manually
+        log_info "Enabling auto-login (Debian)..."
+
+        # Create autologin override for getty@tty1
+        sudo mkdir -p /etc/systemd/system/getty@tty1.service.d
+        sudo tee /etc/systemd/system/getty@tty1.service.d/autologin.conf > /dev/null <<EOF
+[Service]
+ExecStart=
+ExecStart=-/sbin/agetty --autologin $USER --noclear %I \$TERM
+EOF
+    fi
+
+    # Disable screen blanking (support both boot locations)
+    if ! grep -q "consoleblank=0" /boot/cmdline.txt 2>/dev/null && ! grep -q "consoleblank=0" /boot/firmware/cmdline.txt 2>/dev/null; then
         log_info "Disabling screen blanking..."
-        sudo sed -i 's/$/ consoleblank=0/' /boot/cmdline.txt
+        if [ -f /boot/firmware/cmdline.txt ]; then
+            sudo sed -i 's/$/ consoleblank=0/' /boot/firmware/cmdline.txt
+        elif [ -f /boot/cmdline.txt ]; then
+            sudo sed -i 's/$/ consoleblank=0/' /boot/cmdline.txt
+        fi
     fi
 
-    # Create systemd service
-    log_info "Creating systemd service..."
-    sudo tee /etc/systemd/system/reikon-dash.service > /dev/null <<EOF
+    # Determine boot mode and service configuration
+    if [ "$HAS_DESKTOP" = true ]; then
+        log_info "Configuring for graphical boot mode..."
+
+        # Install display manager if not present (Debian only)
+        if [[ "$OS_NAME" != *"Raspberry Pi"* ]]; then
+            if ! systemctl list-unit-files 2>/dev/null | grep -qE "lightdm|gdm|sddm"; then
+                log_info "Installing lightdm display manager..."
+                sudo apt install -y lightdm
+            fi
+        fi
+
+        # Enable graphical target
+        sudo systemctl set-default graphical.target 2>/dev/null || true
+
+        # Create systemd service (graphical mode)
+        log_info "Creating systemd service (graphical mode)..."
+        sudo tee /etc/systemd/system/reikon-dash.service > /dev/null <<EOF
 [Unit]
 Description=Reikon Dash Motorsport Head Unit
 After=graphical.target network.target
@@ -256,6 +305,32 @@ RestartSec=5
 [Install]
 WantedBy=graphical.target
 EOF
+    else
+        log_info "Configuring for console boot mode (no desktop)..."
+
+        # Create systemd service (console mode with EGLFS)
+        log_info "Creating systemd service (console mode)..."
+        sudo tee /etc/systemd/system/reikon-dash.service > /dev/null <<EOF
+[Unit]
+Description=Reikon Dash Motorsport Head Unit
+After=multi-user.target network.target
+
+[Service]
+Type=simple
+User=$USER
+WorkingDirectory=$BUILD_DIR
+Environment="QT_QPA_PLATFORM=eglfs"
+Environment="QSG_RENDER_LOOP=basic"
+ExecStart=$BUILD_DIR/reikon-dash --fullscreen
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+EOF
+    fi
 
     sudo systemctl daemon-reload
     sudo systemctl enable reikon-dash.service

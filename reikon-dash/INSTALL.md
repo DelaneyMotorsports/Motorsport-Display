@@ -21,6 +21,7 @@ curl -sSL https://raw.githubusercontent.com/DelaneyMotorsports/Motorsport-Displa
 - ✅ Sets up virtual CAN interface for testing
 - ✅ Disables screen blanking and screensavers
 - ✅ Creates systemd service for auto-start
+- ✅ Automatically detects Raspberry Pi OS or Debian and configures appropriately
 
 After installation completes, reboot your Pi 5:
 
@@ -29,6 +30,30 @@ sudo reboot
 ```
 
 Reikon Dash will launch automatically in fullscreen mode!
+
+### Supported Operating Systems
+
+The installer supports both:
+- **Raspberry Pi OS 64-bit** (Bookworm or later)
+- **Debian 64-bit** (Trixie/13 or later)
+
+The installer automatically detects your OS and configures appropriately.
+
+### Boot Modes
+
+The installer detects your system configuration and chooses the optimal mode:
+
+**Desktop Environment Detected:**
+- Installs display manager (lightdm) if needed on Debian
+- Boots to graphical.target
+- Reikon Dash runs in EGLFS fullscreen
+
+**No Desktop (Console Only):**
+- Boots to multi-user.target (console)
+- Reikon Dash runs directly via EGLFS from console
+- Lighter weight, ideal for dedicated kiosk
+
+Both modes provide identical functionality.
 
 ---
 
@@ -255,6 +280,59 @@ sudo systemctl stop reikon-dash
 # Run manually
 cd ~/Motorsport-Display/reikon-dash/build
 ./reikon-dash --windowed
+```
+
+### Service Not Starting After Reboot
+
+If the service shows "inactive (dead)" after reboot:
+
+**1. Check boot target:**
+```bash
+systemctl get-default
+```
+
+**2. Check service configuration:**
+```bash
+grep "WantedBy=" /etc/systemd/system/reikon-dash.service
+```
+
+**Expected configurations:**
+- If boot target is `multi-user.target` (console mode): Service should show `WantedBy=multi-user.target`
+- If boot target is `graphical.target` (desktop mode): Service should show `WantedBy=graphical.target`
+
+**3. If mismatch detected:**
+Re-run the installer to reconfigure:
+```bash
+curl -sSL https://raw.githubusercontent.com/DelaneyMotorsports/Motorsport-Display/pi5-kiosk-hmi/reikon-dash/install.sh | bash
+sudo reboot
+```
+
+**4. Check logs for errors:**
+```bash
+journalctl -u reikon-dash -n 50 --no-pager
+```
+
+### Debian-Specific Issues
+
+**Permission denied errors:**
+Verify user is in video/input groups:
+```bash
+sudo usermod -a -G video,input $USER
+# Reboot after adding groups
+sudo reboot
+```
+
+**EGLFS not available:**
+Install OpenGL ES libraries:
+```bash
+sudo apt install libgles2-mesa libgles2-mesa-dev
+```
+
+**Auto-login not working:**
+Check systemd override:
+```bash
+cat /etc/systemd/system/getty@tty1.service.d/autologin.conf
+# Should contain ExecStart with --autologin
 ```
 
 ### Display Issues
