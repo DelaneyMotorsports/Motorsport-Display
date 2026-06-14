@@ -44,11 +44,19 @@ Reikon Dash will auto-start in fullscreen kiosk mode! 🏁
 
 ### Recommended Base OS
 
-**Raspberry Pi OS 64-bit** (Bookworm or later)
+**Option 1: Raspberry Pi OS 64-bit** (Bookworm or later)
 - ✅ **Pi OS 64-bit Desktop** - Full desktop environment (recommended for development)
 - ✅ **Pi OS 64-bit Lite** - Minimal install (recommended for production kiosk)
 
-**Download:** https://www.raspberrypi.com/software/operating-systems/
+**Option 2: Debian 64-bit** (Trixie/13 or later)
+- ✅ **Debian with Desktop** - Full desktop environment
+- ✅ **Debian Minimal** - Console-only (lightest weight)
+
+**Downloads:**
+- **Raspberry Pi OS:** https://www.raspberrypi.com/software/operating-systems/
+- **Debian:** https://www.debian.org/download
+
+The installer automatically detects and configures for your OS.
 
 ### What Gets Installed
 
@@ -58,6 +66,7 @@ The one-line installer automatically:
 - ✅ Configures fullscreen kiosk mode
 - ✅ Sets up auto-start on boot
 - ✅ Detects and adapts to your display (1080p, 4K, any resolution)
+- ✅ Detects OS (Raspberry Pi OS or Debian) and configures appropriately
 - ✅ Creates systemd service with auto-restart
 - ✅ Sets up virtual CAN interface for testing
 
