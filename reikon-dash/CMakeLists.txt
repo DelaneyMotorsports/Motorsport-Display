@@ -56,8 +56,15 @@ qt_add_qml_module(reikon-dash
     QML_FILES
         qml/App.qml
         qml/screens/Screen01.ui.qml
+        qml/screens/Screen02.ui.qml
+        qml/screens/Screen03.ui.qml
         qml/components/GaugeArc.qml
         qml/components/ShiftLight.qml
+        qml/components/DigitalGear.qml
+        qml/components/WarningLight.qml
+        qml/components/LabeledGauge.qml
+        qml/components/ScreenManager.qml
+        qml/components/FPSCounter.qml
 )
 
 target_link_libraries(reikon-dash PRIVATE Qt6::Core Qt6::Quick)
