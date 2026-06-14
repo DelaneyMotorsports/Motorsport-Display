@@ -22,6 +22,7 @@
 
 import QtQuick
 import QtQuick.Window
+import "./components"
 
 Window {
     width: 1920
@@ -31,7 +32,8 @@ Window {
 
     color: "#000000"
 
-    Screen01 {
+    ScreenManager {
         anchors.fill: parent
+        focus: true  // Enable keyboard input
     }
 }
