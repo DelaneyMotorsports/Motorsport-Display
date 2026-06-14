@@ -25,6 +25,70 @@ This project is in active development. Core architecture is complete, but many f
 
 ---
 
+## 🚀 Raspberry Pi 5 Installation
+
+### Quick Start - One-Line Install
+
+Transform your Raspberry Pi 5 into a dedicated motorsport head unit with a single command:
+
+```bash
+curl -sSL https://raw.githubusercontent.com/DelaneyMotorsports/Motorsport-Display/pi5-kiosk-hmi/reikon-dash/install.sh | bash
+```
+
+After installation completes, reboot your Pi:
+```bash
+sudo reboot
+```
+
+Reikon Dash will auto-start in fullscreen kiosk mode! 🏁
+
+### Recommended Base OS
+
+**Raspberry Pi OS 64-bit** (Bookworm or later)
+- ✅ **Pi OS 64-bit Desktop** - Full desktop environment (recommended for development)
+- ✅ **Pi OS 64-bit Lite** - Minimal install (recommended for production kiosk)
+
+**Download:** https://www.raspberrypi.com/software/operating-systems/
+
+### What Gets Installed
+
+The one-line installer automatically:
+- ✅ Installs Qt 6 and all dependencies
+- ✅ Builds Reikon Dash optimized for Pi 5
+- ✅ Configures fullscreen kiosk mode
+- ✅ Sets up auto-start on boot
+- ✅ Detects and adapts to your display (1080p, 4K, any resolution)
+- ✅ Creates systemd service with auto-restart
+- ✅ Sets up virtual CAN interface for testing
+
+### Display Compatibility
+
+Automatically adapts to any HDMI display:
+- **1920x1080** (Full HD) - Standard HDMI TV
+- **3840x2160** (4K Ultra HD)
+- **1920x720** (Ultra-wide automotive)
+- Any other resolution - Auto-detected!
+
+### Update/Repair Existing Installation
+
+Safe to run multiple times - automatically detects and updates existing installations while preserving your custom configurations:
+
+```bash
+# Same command updates existing installation
+curl -sSL https://raw.githubusercontent.com/DelaneyMotorsports/Motorsport-Display/pi5-kiosk-hmi/reikon-dash/install.sh | bash
+sudo systemctl restart reikon-dash
+```
+
+### Manual Installation & Documentation
+
+For development or custom setups, see **[INSTALL.md](reikon-dash/INSTALL.md)** for:
+- Manual installation steps
+- Configuration options
+- Troubleshooting
+- Advanced setup
+
+---
+
 ## 🎯 Development Goals
 
 This project is being developed with automotive software quality standards in mind:
@@ -38,9 +102,16 @@ Future goals include ISO 26262 functional safety and ISO/SAE 21434 cybersecurity
 
 ---
 
-## 🚀 Quick Start
+## 💻 Development & Manual Build
 
-### Getting Started
+### For Raspberry Pi 5 (Production)
+
+**Use the one-line installer** (see [Installation section](#-raspberry-pi-5-installation) above):
+```bash
+curl -sSL https://raw.githubusercontent.com/DelaneyMotorsports/Motorsport-Display/pi5-kiosk-hmi/reikon-dash/install.sh | bash
+```
+
+### For Development (Desktop/Manual Build)
 
 All development happens in the `reikon-dash/` subdirectory:
 
