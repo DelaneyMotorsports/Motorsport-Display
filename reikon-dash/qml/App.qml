@@ -25,8 +25,13 @@ import QtQuick.Window
 import "./components"
 
 Window {
-    width: 1920
-    height: 720
+    // Use auto-detected resolution or command-line override
+    width: windowWidth || 1920
+    height: windowHeight || 720
+
+    // Fullscreen mode for kiosk deployment (default)
+    visibility: fullscreenMode ? Window.FullScreen : Window.Windowed
+
     visible: true
     title: qsTr("Reikon Dash")
 
@@ -36,4 +41,17 @@ Window {
         anchors.fill: parent
         focus: true  // Enable keyboard input
     }
+
+    // Debug info (optional - comment out for production)
+    // Text {
+    //     anchors.top: parent.top
+    //     anchors.right: parent.right
+    //     anchors.margins: 10
+    //     text: "Display: " + width + "x" + height +
+    //           " (Detected: " + detectedWidth + "x" + detectedHeight + ")" +
+    //           "\nMode: " + (fullscreenMode ? "Fullscreen" : "Windowed")
+    //     color: "#00ff00"
+    //     font.pixelSize: 12
+    //     z: 1000
+    // }
 }
