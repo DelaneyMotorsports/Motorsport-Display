@@ -21,6 +21,7 @@ curl -sSL https://raw.githubusercontent.com/DelaneyMotorsports/Motorsport-Displa
 - ✅ Sets up virtual CAN interface for testing
 - ✅ Disables screen blanking and screensavers
 - ✅ Creates systemd service for auto-start
+- ✅ Adds user to video/input/render groups for GPU access
 - ✅ Automatically detects Raspberry Pi OS or Debian and configures appropriately
 
 After installation completes, reboot your Pi 5:

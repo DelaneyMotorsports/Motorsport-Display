@@ -67,6 +67,7 @@ The one-line installer automatically:
 - ✅ Sets up auto-start on boot
 - ✅ Detects and adapts to your display (1080p, 4K, any resolution)
 - ✅ Detects OS (Raspberry Pi OS or Debian) and configures appropriately
+- ✅ Adds user to video/input/render groups for GPU access
 - ✅ Creates systemd service with auto-restart
 - ✅ Sets up virtual CAN interface for testing
 
