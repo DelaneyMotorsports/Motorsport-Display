@@ -270,6 +270,17 @@ EOF
         fi
     fi
 
+    # Create EGLFS KMS configuration for better display compatibility
+    log_info "Creating EGLFS KMS configuration..."
+    sudo tee /etc/reikon-dash-kms.json > /dev/null <<'EOFKMS'
+{
+  "device": "/dev/dri/card1",
+  "hwcursor": false,
+  "pbuffers": true,
+  "separateScreens": false
+}
+EOFKMS
+
     # Determine boot mode and service configuration
     if [ "$HAS_DESKTOP" = true ]; then
         log_info "Configuring for graphical boot mode..."
@@ -298,6 +309,7 @@ User=$USER
 WorkingDirectory=$BUILD_DIR
 Environment="QT_QPA_PLATFORM=eglfs"
 Environment="QSG_RENDER_LOOP=basic"
+Environment="QT_QPA_EGLFS_KMS_CONFIG=/etc/reikon-dash-kms.json"
 ExecStart=$BUILD_DIR/reikon-dash --fullscreen
 Restart=on-failure
 RestartSec=5
@@ -321,6 +333,7 @@ User=$USER
 WorkingDirectory=$BUILD_DIR
 Environment="QT_QPA_PLATFORM=eglfs"
 Environment="QSG_RENDER_LOOP=basic"
+Environment="QT_QPA_EGLFS_KMS_CONFIG=/etc/reikon-dash-kms.json"
 ExecStart=$BUILD_DIR/reikon-dash --fullscreen
 Restart=on-failure
 RestartSec=5
