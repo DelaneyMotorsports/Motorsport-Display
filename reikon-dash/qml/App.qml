@@ -22,7 +22,7 @@
 
 import QtQuick
 import QtQuick.Window
-import "./components"
+import "./screens"
 
 Window {
     // Use auto-detected resolution or command-line override
@@ -37,7 +37,7 @@ Window {
 
     color: "#000000"
 
-    ScreenManager {
+    DDUScreen {
         anchors.fill: parent
         focus: true  // Enable keyboard input
     }
