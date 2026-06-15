@@ -4,10 +4,10 @@
 # Idempotent installer - safe to run multiple times for updates/repairs
 #
 # Usage:
-#   curl -sSL https://raw.githubusercontent.com/DelaneyMotorsports/Motorsport-Display/pi5-kiosk-hmi/reikon-dash/install.sh | bash
+#   curl -sSL https://raw.githubusercontent.com/DelaneyMotorsports/Motorsport-Display/claude/verify-dev-branch-Cax2D/reikon-dash/install.sh | bash
 #
 # Or download and run:
-#   wget https://raw.githubusercontent.com/DelaneyMotorsports/Motorsport-Display/pi5-kiosk-hmi/reikon-dash/install.sh
+#   wget https://raw.githubusercontent.com/DelaneyMotorsports/Motorsport-Display/claude/verify-dev-branch-Cax2D/reikon-dash/install.sh
 #   chmod +x install.sh
 #   ./install.sh
 #
@@ -27,7 +27,7 @@ NC='\033[0m' # No Color
 
 # Configuration
 REPO_URL="https://github.com/DelaneyMotorsports/Motorsport-Display.git"
-BRANCH="pi5-kiosk-hmi"
+BRANCH="claude/verify-dev-branch-Cax2D"
 INSTALL_DIR="$HOME/Motorsport-Display"
 APP_DIR="$INSTALL_DIR/reikon-dash"
 BUILD_DIR="$APP_DIR/build"
