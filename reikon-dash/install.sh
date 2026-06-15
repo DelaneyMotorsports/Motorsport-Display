@@ -338,6 +338,34 @@ EOF
     log_info "Kiosk mode configured ✓"
 }
 
+# Configure user permissions for EGLFS
+configure_permissions() {
+    log_step "Configuring user permissions for EGLFS..."
+
+    # Add user to video, input, and render groups for GPU/display access
+    GROUPS_NEEDED="video input render"
+    GROUPS_ADDED=""
+
+    for group in $GROUPS_NEEDED; do
+        if getent group $group > /dev/null 2>&1; then
+            if ! groups $USER | grep -q "\b$group\b"; then
+                sudo usermod -a -G $group $USER
+                GROUPS_ADDED="$GROUPS_ADDED $group"
+                log_info "Added $USER to $group group"
+            fi
+        fi
+    done
+
+    if [ -n "$GROUPS_ADDED" ]; then
+        log_warn "User added to groups:$GROUPS_ADDED"
+        log_warn "You may need to log out and back in for group changes to take effect"
+    else
+        log_info "User already has required group memberships"
+    fi
+
+    log_info "Permissions configured ✓"
+}
+
 # Setup CAN interface
 setup_can() {
     log_step "Setting up CAN interface..."
@@ -399,6 +427,7 @@ main() {
     restore_custom_files
 
     configure_kiosk
+    configure_permissions
     setup_can
 
     echo ""
