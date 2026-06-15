@@ -29,6 +29,10 @@ Item {
     property real arcSize: Math.min(width, height - 20)
     property real progress: Math.max(0, Math.min(1, fuelPercent / 100))
 
+    Behavior on progress {
+        NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
+    }
+
     // Label
     Text {
         anchors.horizontalCenter: parent.horizontalCenter
@@ -102,10 +106,6 @@ Item {
                 radiusY: (arcSize / 2) - (arcSize * 0.10)
                 startAngle: 135
                 sweepAngle: 270 * root.progress
-
-                Behavior on sweepAngle {
-                    NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
-                }
             }
         }
 

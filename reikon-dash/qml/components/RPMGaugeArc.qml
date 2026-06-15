@@ -29,6 +29,10 @@ Item {
     property real progress: Math.max(0, Math.min(1, (rpm - minRpm) / (maxRpm - minRpm)))
     property real needleAngle: -210 + 240 * progress
 
+    Behavior on progress {
+        NumberAnimation { duration: 120; easing.type: Easing.OutCubic }
+    }
+
     // Background radial gradient
     Rectangle {
         anchors.centerIn: parent
@@ -86,10 +90,6 @@ Item {
                 radiusY: (root.height / 2) - (root.width * 0.08)
                 startAngle: -210
                 sweepAngle: 240 * root.progress
-            }
-
-            Behavior on sweepAngle {
-                NumberAnimation { duration: 120; easing.type: Easing.OutCubic }
             }
         }
     }
