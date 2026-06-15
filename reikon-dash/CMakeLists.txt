@@ -55,6 +55,7 @@ qt_add_qml_module(reikon-dash
     VERSION 1.0
     QML_FILES
         qml/App.qml
+        qml/screens/DDUScreen.qml
         qml/screens/Screen01.ui.qml
         qml/screens/Screen02.ui.qml
         qml/screens/Screen03.ui.qml
@@ -65,6 +66,13 @@ qt_add_qml_module(reikon-dash
         qml/components/LabeledGauge.qml
         qml/components/ScreenManager.qml
         qml/components/FPSCounter.qml
+        qml/components/LEDShiftBar.qml
+        qml/components/RPMGaugeArc.qml
+        qml/components/TemperatureBar.qml
+        qml/components/FuelGauge.qml
+        qml/components/SpeedDisplay.qml
+        qml/components/LapTimerPanel.qml
+        qml/components/LEDSideIndicator.qml
 )
 
 target_link_libraries(reikon-dash PRIVATE Qt6::Core Qt6::Quick)
