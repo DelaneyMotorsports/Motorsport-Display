@@ -52,26 +52,62 @@ Item {
         anchors.top: labelText.bottom
         anchors.topMargin: 4
         height: 20
-        color: "#1a1a1a"
-        border.color: "#333333"
+        color: "#0a0a0a"
+        border.color: "#444444"
         border.width: 1
-        radius: 2
+        radius: 3
 
-        // Filled portion
+        // Inner shadow effect
         Rectangle {
+            anchors.fill: parent
+            anchors.margins: 1
+            radius: 2
+            color: "transparent"
+
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: "#33000000" }
+                GradientStop { position: 0.3; color: "transparent" }
+            }
+        }
+
+        // Filled portion with gradient
+        Rectangle {
+            id: filledBar
             anchors.left: parent.left
             anchors.top: parent.top
             anchors.bottom: parent.bottom
             anchors.margins: 2
             width: (parent.width - 4) * root.progress
-            color: root.barColor
-            radius: 1
+            radius: 2
+
+            gradient: Gradient {
+                orientation: Gradient.Horizontal
+                GradientStop {
+                    position: 0.0
+                    color: root.progress > 0.70 ? root.barColor : "#00BFFF"  // Cyan when cool
+                }
+                GradientStop {
+                    position: 1.0
+                    color: root.barColor
+                }
+            }
+
+            // Glow effect when hot
+            layer.enabled: root.progress > 0.85
+            layer.effect: ShaderEffect {
+                property color glowColor: root.barColor
+                fragmentShader: "
+                    varying highp vec2 qt_TexCoord0;
+                    uniform lowp vec4 glowColor;
+                    uniform lowp float qt_Opacity;
+                    void main() {
+                        gl_FragColor = glowColor * 0.5 * qt_Opacity;
+                    }
+                "
+            }
 
             Behavior on width {
-                NumberAnimation { duration: 200 }
-            }
-            Behavior on color {
-                ColorAnimation { duration: 200 }
+                NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
             }
         }
 
@@ -79,22 +115,26 @@ Item {
         Text {
             anchors.left: parent.left
             anchors.verticalCenter: parent.verticalCenter
-            anchors.leftMargin: 4
+            anchors.leftMargin: 6
             text: "C"
             font.pixelSize: 10
             font.bold: true
-            color: "#666666"
+            color: "#00BFFF"
+            style: Text.Outline
+            styleColor: "#000000"
         }
 
         // H marker
         Text {
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
-            anchors.rightMargin: 4
+            anchors.rightMargin: 6
             text: "H"
             font.pixelSize: 10
             font.bold: true
-            color: "#666666"
+            color: "#FF4444"
+            style: Text.Outline
+            styleColor: "#000000"
         }
     }
 }

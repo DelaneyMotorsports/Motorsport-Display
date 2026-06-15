@@ -44,27 +44,61 @@ Row {
         Rectangle {
             width: (root.width - (root.segmentCount - 1) * root.spacing) / root.segmentCount
             height: root.height
-            radius: 2
+            radius: 3
 
             // Calculate if this segment should be lit
             property real threshold: root.thresholds[index]
             property bool isActive: (root.rpm / root.maxRpm) >= threshold
 
-            color: isActive ? root.segmentColors[index] : "#222222"
-            border.color: isActive ? Qt.lighter(root.segmentColors[index], 1.2) : "#111111"
-            border.width: 1
+            color: isActive ? root.segmentColors[index] : "#1a1a1a"
+            border.color: isActive ? Qt.lighter(root.segmentColors[index], 1.3) : "#333333"
+            border.width: isActive ? 2 : 1
+
+            // Gradient overlay for depth
+            gradient: Gradient {
+                GradientStop {
+                    position: 0.0
+                    color: isActive ? Qt.lighter(root.segmentColors[index], 1.4) : "#222222"
+                }
+                GradientStop {
+                    position: 0.5
+                    color: isActive ? root.segmentColors[index] : "#1a1a1a"
+                }
+                GradientStop {
+                    position: 1.0
+                    color: isActive ? Qt.darker(root.segmentColors[index], 1.2) : "#111111"
+                }
+            }
+
+            // Inner highlight for 3D effect
+            Rectangle {
+                anchors.fill: parent
+                anchors.margins: 1
+                radius: 2
+                color: "transparent"
+                visible: isActive
+
+                gradient: Gradient {
+                    GradientStop { position: 0.0; color: "#44FFFFFF" }
+                    GradientStop { position: 0.3; color: "transparent" }
+                }
+            }
 
             // Smooth transitions
             Behavior on color {
-                ColorAnimation { duration: 100 }
+                ColorAnimation { duration: 80; easing.type: Easing.OutQuad }
             }
 
-            // Pulse effect when active
+            Behavior on border.width {
+                NumberAnimation { duration: 80 }
+            }
+
+            // Pulse effect when active at high RPM
             SequentialAnimation on opacity {
                 running: isActive && index >= root.segmentCount - 2
                 loops: Animation.Infinite
-                NumberAnimation { to: 0.3; duration: 200 }
-                NumberAnimation { to: 1.0; duration: 200 }
+                NumberAnimation { to: 0.4; duration: 150; easing.type: Easing.InOutQuad }
+                NumberAnimation { to: 1.0; duration: 150; easing.type: Easing.InOutQuad }
             }
         }
     }

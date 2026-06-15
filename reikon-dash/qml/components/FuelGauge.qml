@@ -22,8 +22,12 @@ Item {
     property color arcColor: {
         if (fuelPercent < 10) return "#FF0000"
         else if (fuelPercent < 25) return "#FFA500"
-        else return "#00AA00"
+        else return "#00BFFF"  // Cyan to match theme
     }
+
+    // Calculated
+    property real arcSize: Math.min(width, height - 20)
+    property real progress: Math.max(0, Math.min(1, fuelPercent / 100))
 
     // Label
     Text {
@@ -34,50 +38,102 @@ Item {
         color: "#888888"
     }
 
-    // Fuel arc
+    // Background radial gradient
+    Rectangle {
+        anchors.centerIn: parent
+        anchors.verticalCenterOffset: 10
+        width: arcSize
+        height: arcSize
+        radius: width / 2
+
+        gradient: Gradient {
+            GradientStop { position: 0.0; color: "#55000000" }
+            GradientStop { position: 0.7; color: "#FF1a1a1a" }
+            GradientStop { position: 1.0; color: "black" }
+        }
+    }
+
+    // Background arc (grey)
     Shape {
         anchors.centerIn: parent
-        width: Math.min(parent.width, parent.height - 20)
-        height: width
+        anchors.verticalCenterOffset: 10
+        width: arcSize
+        height: arcSize
+        layer.enabled: true
+        layer.smooth: true
 
         ShapePath {
-            strokeWidth: 8
+            strokeWidth: arcSize * 0.08
+            strokeColor: "#333333"
+            fillColor: "transparent"
+            capStyle: ShapePath.RoundCap
+
+            PathAngleArc {
+                centerX: arcSize / 2
+                centerY: arcSize / 2
+                radiusX: (arcSize / 2) - (arcSize * 0.10)
+                radiusY: (arcSize / 2) - (arcSize * 0.10)
+                startAngle: 135
+                sweepAngle: 270
+            }
+        }
+    }
+
+    // Value arc (colored with smooth animation)
+    Shape {
+        anchors.centerIn: parent
+        anchors.verticalCenterOffset: 10
+        width: arcSize
+        height: arcSize
+        layer.enabled: true
+        layer.smooth: true
+
+        ShapePath {
+            id: valueArc
+            strokeWidth: arcSize * 0.08
             strokeColor: root.arcColor
             fillColor: "transparent"
             capStyle: ShapePath.RoundCap
 
             PathAngleArc {
-                centerX: parent.width / 2
-                centerY: parent.height / 2
-                radiusX: parent.width / 2 - 10
-                radiusY: parent.height / 2 - 10
+                centerX: arcSize / 2
+                centerY: arcSize / 2
+                radiusX: (arcSize / 2) - (arcSize * 0.10)
+                radiusY: (arcSize / 2) - (arcSize * 0.10)
                 startAngle: 135
-                sweepAngle: 270 * (root.fuelPercent / 100)
+                sweepAngle: 270 * root.progress
+
+                Behavior on sweepAngle {
+                    NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
+                }
             }
         }
 
         Behavior on opacity {
-            NumberAnimation { duration: 50 }
+            NumberAnimation { duration: 100 }
         }
     }
 
-    // Background circle
+    // Center circle background
     Rectangle {
         anchors.centerIn: parent
-        width: Math.min(parent.width, parent.height - 20) - 20
+        anchors.verticalCenterOffset: 10
+        width: arcSize * 0.60
         height: width
         radius: width / 2
         color: "#1a1a1a"
-        border.color: "#333333"
+        border.color: "#444444"
         border.width: 1
 
         // Percentage text
         Text {
             anchors.centerIn: parent
             text: Math.round(root.fuelPercent) + "%"
-            font.pixelSize: 24
+            font.pixelSize: arcSize * 0.20
             font.bold: true
             color: root.arcColor
+            style: Text.Outline
+            styleColor: "#000000"
         }
     }
 }

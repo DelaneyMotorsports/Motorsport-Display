@@ -25,12 +25,40 @@ Column {
             width: 12
             height: 12
             radius: 6
-            color: index < root.activeLEDs ? root.activeColor : "#222222"
-            border.color: index < root.activeLEDs ? Qt.lighter(root.activeColor, 1.3) : "#111111"
-            border.width: 1
 
-            Behavior on color {
-                ColorAnimation { duration: 100 }
+            property bool isActive: index < root.activeLEDs
+
+            // Gradient for depth
+            gradient: Gradient {
+                GradientStop {
+                    position: 0.0
+                    color: isActive ? Qt.lighter(root.activeColor, 1.5) : "#2a2a2a"
+                }
+                GradientStop {
+                    position: 0.5
+                    color: isActive ? root.activeColor : "#1a1a1a"
+                }
+                GradientStop {
+                    position: 1.0
+                    color: isActive ? Qt.darker(root.activeColor, 1.2) : "#0a0a0a"
+                }
+            }
+
+            border.color: isActive ? Qt.lighter(root.activeColor, 1.4) : "#333333"
+            border.width: isActive ? 2 : 1
+
+            // Inner highlight
+            Rectangle {
+                anchors.centerIn: parent
+                width: 4
+                height: 4
+                radius: 2
+                color: isActive ? "#FFFFFF" : "transparent"
+                opacity: 0.6
+            }
+
+            Behavior on opacity {
+                NumberAnimation { duration: 80; easing.type: Easing.OutQuad }
             }
         }
     }
