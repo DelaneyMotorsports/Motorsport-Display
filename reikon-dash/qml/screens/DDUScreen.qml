@@ -21,34 +21,35 @@ Rectangle {
     id: root
     color: "#000000"
 
-    // Signal bindings (connected to SignalBus in App.qml)
-    property int rpm: 0
-    property int gear: 1
-    property real speed: 0
-    property real coolantTemp: 70
-    property real oilTemp: 80
-    property real fuelPercent: 66
+    // Direct property bindings (Bosch DDU pattern)
+    // Bind directly to vehicleData Q_PROPERTY for type safety and performance
+    property double rpm: vehicleData.rpm
+    property int gear: vehicleData.gear
+    property double speed: vehicleData.speed
+    property double coolantTemp: vehicleData.coolantTemp
+    property double oilTemp: vehicleData.oilTemp
+    property double fuelPercent: vehicleData.fuelPercent
 
-    // Connections to SignalBus
-    Connections {
-        target: signalBus
+    // Smooth animation on all values (removes CAN signal jitter)
+    // Bosch DDU uses 40-60ms smoothing on high-frequency signals
+    Behavior on rpm {
+        NumberAnimation { duration: 40; easing.type: Easing.OutQuad }
+    }
 
-        function onSignalChanged(signalName, value) {
-            switch(signalName) {
-                case "EngineRPM":
-                    root.rpm = value
-                    break
-                case "Gear":
-                    root.gear = value
-                    break
-                case "VehicleSpeed":
-                    root.speed = value
-                    break
-                case "CoolantTemp":
-                    root.coolantTemp = value
-                    break
-            }
-        }
+    Behavior on speed {
+        NumberAnimation { duration: 60; easing.type: Easing.OutQuad }
+    }
+
+    Behavior on coolantTemp {
+        NumberAnimation { duration: 200; easing.type: Easing.OutQuad }
+    }
+
+    Behavior on oilTemp {
+        NumberAnimation { duration: 200; easing.type: Easing.OutQuad }
+    }
+
+    Behavior on fuelPercent {
+        NumberAnimation { duration: 500; easing.type: Easing.OutQuad }
     }
 
     // Top: 8-segment LED shift light bar

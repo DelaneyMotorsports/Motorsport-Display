@@ -28,7 +28,9 @@
 #include <QSurfaceFormat>
 #include <QCommandLineParser>
 #include <QScreen>
+#include <QtMath>
 #include "model/SignalBus.h"
+#include "model/VehicleData.h"
 
 int main(int argc, char *argv[])
 {
@@ -87,14 +89,18 @@ int main(int argc, char *argv[])
     qputenv("QT_QPA_EGLFS_PHYSICAL_WIDTH", QString::number(windowWidth).toLatin1());
     qputenv("QT_QPA_EGLFS_PHYSICAL_HEIGHT", QString::number(windowHeight).toLatin1());
 
-    // Create SignalBus instance
+    // Create SignalBus instance (legacy compatibility)
     SignalBus signalBus;
+
+    // Create VehicleData instance (Bosch DDU pattern)
+    VehicleData vehicleData;
 
     // Create QML engine
     QQmlApplicationEngine engine;
 
-    // Register SignalBus with QML context
+    // Register both data models with QML context
     engine.rootContext()->setContextProperty("signalBus", &signalBus);
+    engine.rootContext()->setContextProperty("vehicleData", &vehicleData);
 
     // Register display properties with QML context
     engine.rootContext()->setContextProperty("windowWidth", windowWidth);
@@ -103,27 +109,68 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("detectedWidth", detectedWidth);
     engine.rootContext()->setContextProperty("detectedHeight", detectedHeight);
 
-    // Test timer for UI development (simulates CAN data)
-    QTimer testTimer;
-    QObject::connect(&testTimer, &QTimer::timeout, [&signalBus]() {
-        static int rpm = 2000;
-        static bool ascending = true;
+    // High-frequency telemetry timer (Bosch DDU pattern: 100 Hz)
+    QTimer telemetryTimer;
+    QObject::connect(&telemetryTimer, &QTimer::timeout, [&vehicleData, &signalBus]() {
+        static double time = 0.0;
+        static int cycleCount = 0;
 
-        // Simulate RPM ramping up and down
-        if (ascending) {
-            rpm += 150;
-            if (rpm >= 7500) ascending = false;
-        } else {
-            rpm -= 150;
-            if (rpm <= 2000) ascending = true;
-        }
+        // Realistic motorsport telemetry simulation
+        // RPM follows a racing acceleration pattern
+        double baseRpm = 2000.0 + 5500.0 * qSin(time * 0.3);  // Smooth 2000-7500 RPM sweep
+        double rpmNoise = (qrand() % 100 - 50) * 0.5;  // ±25 RPM sensor noise
+        double rpm = qMax(0.0, baseRpm + rpmNoise);
 
-        signalBus.setValue("EngineRPM", rpm);
-        signalBus.setValue("VehicleSpeed", rpm / 30.0);  // ~0-250 km/h
-        signalBus.setValue("CoolantTemp", 70 + (rpm / 150.0));  // 70-120°C
-        signalBus.setValue("Gear", qMin(6, qMax(1, rpm / 1200)));  // 1-6
+        // Speed correlates with RPM (simulates 5th gear acceleration)
+        double speed = rpm * 0.035;  // ~70-260 km/h range
+
+        // Gear calculation (realistic shift points)
+        int gear = 1;
+        if (rpm > 6500) gear = 6;
+        else if (rpm > 5500) gear = 5;
+        else if (rpm > 4500) gear = 4;
+        else if (rpm > 3500) gear = 3;
+        else if (rpm > 2500) gear = 2;
+
+        // Throttle position (smooth sine wave)
+        double throttle = 50.0 + 50.0 * qSin(time * 0.5);  // 0-100%
+
+        // Coolant temperature (realistic heat-up)
+        double coolantTemp = 70.0 + (rpm / 250.0) + (cycleCount / 100.0);
+        coolantTemp = qMin(120.0, coolantTemp);
+
+        // Oil temperature (lags behind coolant)
+        double oilTemp = 75.0 + (rpm / 300.0) + (cycleCount / 120.0);
+        oilTemp = qMin(135.0, oilTemp);
+
+        // Oil pressure (increases with RPM)
+        double oilPressure = 2.5 + (rpm / 2000.0);
+
+        // Fuel consumption (decreases over time)
+        static double fuelPercent = 84.0;
+        fuelPercent -= 0.001;  // Slow burn
+        if (fuelPercent < 0.0) fuelPercent = 100.0;  // Reset for demo
+
+        // Update VehicleData (Q_PROPERTY pattern - direct binding)
+        vehicleData.setRpm(rpm);
+        vehicleData.setSpeed(speed);
+        vehicleData.setGear(gear);
+        vehicleData.setThrottle(throttle);
+        vehicleData.setCoolantTemp(coolantTemp);
+        vehicleData.setOilTemp(oilTemp);
+        vehicleData.setOilPressure(oilPressure);
+        vehicleData.setFuelPercent(fuelPercent);
+
+        // Also update SignalBus for legacy components
+        signalBus.setValue("EngineRPM", static_cast<int>(rpm));
+        signalBus.setValue("VehicleSpeed", speed);
+        signalBus.setValue("CoolantTemp", coolantTemp);
+        signalBus.setValue("Gear", gear);
+
+        time += 0.01;  // 10ms increment
+        cycleCount++;
     });
-    testTimer.start(50); // 20 Hz update
+    telemetryTimer.start(10); // 100 Hz update (Bosch DDU standard)
 
     const QUrl url(u"qrc:/ReikonDash/qml/App.qml"_qs);
 

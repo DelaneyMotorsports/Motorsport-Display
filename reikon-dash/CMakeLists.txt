@@ -47,6 +47,7 @@ qt_add_executable(reikon-dash
     app/main.cpp
     app/platform/CanBackend.cpp
     app/model/SignalBus.cpp
+    app/model/VehicleData.cpp
     app/services/Logger.cpp
 )
 
