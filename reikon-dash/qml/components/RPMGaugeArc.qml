@@ -120,21 +120,22 @@ Item {
     Rectangle {
         id: needle
         width: root.width * 0.45
-        height: 2
-        radius: 1
+        height: 3
+        radius: 1.5
         color: "white"
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.verticalCenter: parent.verticalCenter
         antialiasing: true
 
-        transform: Rotation {
-            origin.x: 0
-            origin.y: needle.height / 2
-            angle: root.needleAngle
+        // Position needle tail at gauge center
+        x: root.width / 2
+        y: root.height / 2 - height / 2
 
-            Behavior on angle {
-                NumberAnimation { duration: 120; easing.type: Easing.OutCubic }
-            }
+        // Rotate around left edge (tail)
+        transformOrigin: Item.Left
+
+        rotation: root.needleAngle
+
+        Behavior on rotation {
+            NumberAnimation { duration: 120; easing.type: Easing.OutCubic }
         }
     }
 
