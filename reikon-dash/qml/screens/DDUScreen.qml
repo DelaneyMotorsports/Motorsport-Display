@@ -79,14 +79,14 @@ Rectangle {
         // Scale factor for text based on screen height
         property real textScale: Math.max(1.0, root.height / 800.0)
 
-        // Left panel: Temperature and Fuel
+        // Left panel: Temperature and Gauges
         Column {
             id: leftPanel
             anchors.left: parent.left
             anchors.top: parent.top
             anchors.bottom: parent.bottom
             width: parent.width * 0.25
-            spacing: 30 * mainContent.textScale
+            spacing: 15 * mainContent.textScale
 
             Text {
                 text: "TEMP"
@@ -96,41 +96,41 @@ Rectangle {
 
             TemperatureBar {
                 width: parent.width
-                height: 30 * mainContent.textScale
+                height: 25 * mainContent.textScale
                 temperature: root.coolantTemp
                 label: "COOLANT"
             }
 
             TemperatureBar {
                 width: parent.width
-                height: 30 * mainContent.textScale
+                height: 25 * mainContent.textScale
                 temperature: root.oilTemp
                 label: "OIL"
             }
 
-            Item { height: 20 * mainContent.textScale } // Spacer
+            Item { height: 10 * mainContent.textScale } // Spacer
 
             FuelGauge {
                 anchors.horizontalCenter: parent.horizontalCenter
-                width: parent.width * 0.85
+                width: parent.width * 0.75
                 height: width
                 fuelPercent: root.fuelPercent
             }
 
-            Item { height: 20 * mainContent.textScale } // Spacer
+            Item { height: 10 * mainContent.textScale } // Spacer
 
             BoostVacuumGauge {
                 anchors.horizontalCenter: parent.horizontalCenter
-                width: parent.width * 0.85
+                width: parent.width * 0.75
                 height: width
                 pressure: root.boostPressure
             }
 
-            Item { height: 15 * mainContent.textScale } // Spacer
+            Item { height: 10 * mainContent.textScale } // Spacer
 
             OilPressureGauge {
                 anchors.horizontalCenter: parent.horizontalCenter
-                width: parent.width * 0.85
+                width: parent.width * 0.75
                 height: width
                 pressure: root.oilPressure
             }

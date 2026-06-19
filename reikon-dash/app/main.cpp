@@ -290,49 +290,48 @@ int main(int argc, char *argv[])
         }
 
         // Boost/Vacuum calculation (LT4 supercharged - Eaton TVS R2650)
-        // Belt-driven supercharger: boost correlates directly with RPM
+        // Realistic supercharger behavior: boost builds with RPM, throttle controls delivery
         double boostPressure = 0.0;
 
-        if (throttle < 15.0) {
-            // Closed throttle: high vacuum (engine braking)
-            // At idle: -15 to -18 inHg, increases slightly with RPM
-            boostPressure = -18.0 + (rpm / 1500.0);
-            boostPressure = qMax(-20.0, qMin(-10.0, boostPressure));
+        if (throttle < 10.0) {
+            // Closed throttle: manifold vacuum dominates
+            boostPressure = -18.0 + (rpm / 2000.0);  // -18 inHg at idle, -14 inHg at 8000 RPM
+            boostPressure = qMax(-20.0, boostPressure);
+        } else if (throttle < 40.0) {
+            // Light throttle: transition from vacuum to slight boost
+            // Interpolate between vacuum and boost based on throttle position
+            double vacuumBase = -15.0 + (rpm / 2000.0);
+            double boostBase = (rpm - 1500.0) / 1000.0;  // 0 PSI at 1500 RPM, +1 PSI per 1000 RPM
+            boostBase = qMax(0.0, boostBase);
+
+            double blend = (throttle - 10.0) / 30.0;  // 0 at 10%, 1 at 40%
+            boostPressure = vacuumBase * (1.0 - blend) + boostBase * blend;
         } else {
-            // Calculate base boost from RPM (supercharger is always spinning)
-            // LT4 boost curve: 2-3 PSI at 2000 RPM → 11 PSI at 6500+ RPM
-            double rpmBoost = 0.0;
+            // Moderate to WOT: supercharger boost dominates
+            // LT4 makes peak 11 PSI around 6500-7000 RPM at WOT
+            double maxBoostAtRPM = 0.0;
+
             if (rpm < 2000.0) {
-                rpmBoost = 0.0;
-            } else if (rpm < 3000.0) {
-                // 2000-3000 RPM: 0 → 4 PSI
-                rpmBoost = (rpm - 2000.0) / 1000.0 * 4.0;
-            } else if (rpm < 5000.0) {
-                // 3000-5000 RPM: 4 → 8 PSI
-                rpmBoost = 4.0 + ((rpm - 3000.0) / 2000.0 * 4.0);
+                maxBoostAtRPM = rpm / 2000.0 * 2.0;  // 0-2 PSI
+            } else if (rpm < 3500.0) {
+                maxBoostAtRPM = 2.0 + ((rpm - 2000.0) / 1500.0) * 3.0;  // 2-5 PSI
+            } else if (rpm < 5500.0) {
+                maxBoostAtRPM = 5.0 + ((rpm - 3500.0) / 2000.0) * 4.0;  // 5-9 PSI
             } else {
-                // 5000+ RPM: 8 → 11 PSI
-                rpmBoost = 8.0 + ((rpm - 5000.0) / 2000.0 * 3.0);
-                rpmBoost = qMin(11.0, rpmBoost);
+                maxBoostAtRPM = 9.0 + ((rpm - 5500.0) / 1500.0) * 2.0;  // 9-11 PSI
+                maxBoostAtRPM = qMin(11.0, maxBoostAtRPM);
             }
 
-            // Throttle modulates boost (bypass valve effect)
-            // At part throttle, some boost bypasses back to inlet
-            double throttleFactor = (throttle - 15.0) / 85.0;  // 0 at 15%, 1.0 at 100%
-            throttleFactor = qMax(0.0, qMin(1.0, throttleFactor));
+            // Throttle scales boost from 40% to 100%
+            // At 40% throttle: ~60% of max boost
+            // At 100% throttle: full boost
+            double throttleScale = 0.6 + ((throttle - 40.0) / 60.0) * 0.4;
+            throttleScale = qMin(1.0, throttleScale);
 
-            // Apply throttle factor - at closed throttle with RPM, still some vacuum
-            if (throttleFactor < 0.3) {
-                // Light throttle: transition from vacuum to boost
-                double vacuumToBoost = throttleFactor / 0.3;
-                boostPressure = (-8.0 * (1.0 - vacuumToBoost)) + (rpmBoost * vacuumToBoost);
-            } else {
-                // Moderate to full throttle: progressive boost
-                boostPressure = rpmBoost * throttleFactor;
-            }
-
-            boostPressure = qMax(-10.0, qMin(16.0, boostPressure));
+            boostPressure = maxBoostAtRPM * throttleScale;
         }
+
+        boostPressure = qMax(-20.0, qMin(16.0, boostPressure));
 
         // Battery/Energy management (hybrid/electric simulation)
         // Detect braking (speed decreasing)
