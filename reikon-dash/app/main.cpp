@@ -304,6 +304,7 @@ int main(int argc, char *argv[])
         // Battery/Energy management (hybrid/electric simulation)
         // Detect braking (speed decreasing)
         bool isBraking = (speed < prevSpeed - 5.0);  // Speed dropped >5 kph
+        bool isCharging = false;  // Regen braking active
 
         if (throttle > 80.0) {
             // Hard acceleration: DRAIN battery fast
@@ -314,9 +315,11 @@ int main(int argc, char *argv[])
         } else if (isBraking && speed > 30.0) {
             // Regenerative braking: CHARGE battery (but less than drain)
             batteryPercent += 0.008;  // Moderate regen
+            isCharging = true;
         } else if (throttle < 20.0 && speed > 50.0) {
             // Coasting: light regen
             batteryPercent += 0.002;
+            isCharging = true;
         }
 
         // Clamp battery percentage
@@ -339,6 +342,7 @@ int main(int argc, char *argv[])
         vehicleData.setOilPressure(oilPressure);
         vehicleData.setFuelPercent(batteryPercent);
         vehicleData.setBoostPressure(boostPressure);
+        vehicleData.setIsCharging(isCharging);
 
         signalBus.setValue("EngineRPM", static_cast<int>(rpm));
         signalBus.setValue("VehicleSpeed", speed);

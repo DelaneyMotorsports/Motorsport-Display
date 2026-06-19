@@ -80,6 +80,9 @@ class VehicleData : public QObject
     Q_PROPERTY(bool warningCoolant MEMBER m_warningCoolant NOTIFY warningCoolantChanged)
     Q_PROPERTY(bool warningFuel MEMBER m_warningFuel NOTIFY warningFuelChanged)
 
+    // Battery charging state
+    Q_PROPERTY(bool isCharging MEMBER m_isCharging NOTIFY isChargingChanged)
+
 public:
     explicit VehicleData(QObject *parent = nullptr);
 
@@ -97,6 +100,7 @@ public:
     void setLapTimePredicted(int ms);
     void setLapTimeActual(int ms);
     void setLapTimeDiff(int ms);
+    void setIsCharging(bool charging);
 
     // Getters (for C++ access)
     double rpm() const { return m_rpm; }
@@ -131,6 +135,7 @@ signals:
     void warningOilChanged();
     void warningCoolantChanged();
     void warningFuelChanged();
+    void isChargingChanged();
 
 private:
     // Engine telemetry
@@ -160,6 +165,9 @@ private:
     bool m_warningOil = false;
     bool m_warningCoolant = false;
     bool m_warningFuel = false;
+
+    // Battery charging state
+    bool m_isCharging = false;
 
     // Update warning states based on telemetry
     void updateWarnings();

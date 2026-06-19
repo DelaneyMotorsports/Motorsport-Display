@@ -145,6 +145,15 @@ void VehicleData::setLapTimeDiff(int ms)
     emit lapTimeDiffChanged();
 }
 
+void VehicleData::setIsCharging(bool charging)
+{
+    if (m_isCharging == charging)
+        return;
+
+    m_isCharging = charging;
+    emit isChargingChanged();
+}
+
 void VehicleData::updateWarnings()
 {
     // Oil warning: high temp OR low pressure

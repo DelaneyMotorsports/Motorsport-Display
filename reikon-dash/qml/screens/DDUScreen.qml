@@ -30,6 +30,7 @@ Rectangle {
     property double oilTemp: vehicleData.oilTemp
     property double fuelPercent: vehicleData.fuelPercent
     property double boostPressure: vehicleData.boostPressure
+    property bool isCharging: vehicleData.isCharging
 
     // Smooth animation on all values (removes CAN signal jitter)
     // Bosch DDU uses 40-60ms smoothing on high-frequency signals
@@ -104,10 +105,12 @@ Rectangle {
 
             Item { height: 20 } // Spacer
 
-            FuelGauge {
-                width: parent.width
-                height: width
-                fuelPercent: root.fuelPercent
+            BatteryGauge {
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: 120
+                height: 180
+                batteryPercent: root.fuelPercent
+                isCharging: root.isCharging
             }
         }
 
