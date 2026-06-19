@@ -29,6 +29,7 @@
 #include <QCommandLineParser>
 #include <QScreen>
 #include <QtMath>
+#include <QRandomGenerator>
 #include "model/SignalBus.h"
 #include "model/VehicleData.h"
 
@@ -118,7 +119,7 @@ int main(int argc, char *argv[])
         // Realistic motorsport telemetry simulation
         // RPM follows a racing acceleration pattern
         double baseRpm = 2000.0 + 5500.0 * qSin(time * 0.3);  // Smooth 2000-7500 RPM sweep
-        double rpmNoise = (qrand() % 100 - 50) * 0.5;  // ±25 RPM sensor noise
+        double rpmNoise = (QRandomGenerator::global()->bounded(100) - 50) * 0.5;  // ±25 RPM sensor noise
         double rpm = qMax(0.0, baseRpm + rpmNoise);
 
         // Speed correlates with RPM (simulates 5th gear acceleration)
@@ -172,7 +173,7 @@ int main(int argc, char *argv[])
     });
     telemetryTimer.start(10); // 100 Hz update (Bosch DDU standard)
 
-    const QUrl url(u"qrc:/ReikonDash/qml/App.qml"_qs);
+    const QUrl url(QStringLiteral("qrc:/ReikonDash/qml/App.qml"));
 
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
                      &app, [url](QObject *obj, const QUrl &objUrl) {
