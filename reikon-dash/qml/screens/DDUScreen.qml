@@ -112,6 +112,13 @@ Rectangle {
                 batteryPercent: root.fuelPercent
                 isCharging: root.isCharging
             }
+
+            Item { height: 20 } // Spacer
+
+            BoostVacuumGauge {
+                anchors.horizontalCenter: parent.horizontalCenter
+                pressure: root.boostPressure
+            }
         }
 
         // Left side LEDs
@@ -170,14 +177,6 @@ Rectangle {
                 anchors.horizontalCenter: parent.horizontalCenter
                 speed: root.speed
                 units: "kph"
-            }
-
-            Item { height: 20 } // Spacer
-
-            BoostVacuumGauge {
-                anchors.horizontalCenter: parent.horizontalCenter
-                width: parent.width
-                pressure: root.boostPressure
             }
         }
 
