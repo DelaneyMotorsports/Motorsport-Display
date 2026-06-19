@@ -105,12 +105,11 @@ Rectangle {
 
             Item { height: 20 } // Spacer
 
-            BatteryGauge {
+            FuelGauge {
                 anchors.horizontalCenter: parent.horizontalCenter
-                width: 120
-                height: 180
-                batteryPercent: root.fuelPercent
-                isCharging: root.isCharging
+                width: 140
+                height: 140
+                fuelPercent: root.fuelPercent
             }
 
             Item { height: 20 } // Spacer

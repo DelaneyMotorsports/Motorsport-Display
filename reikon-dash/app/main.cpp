@@ -279,25 +279,31 @@ int main(int argc, char *argv[])
         double oilPressure = 2.0 + (rpm / 1800.0);
 
         // Boost/Vacuum calculation (LT4 supercharged)
-        // Supercharger is belt-driven: boost = f(RPM, throttle)
+        // Supercharger is belt-driven: boost primarily driven by RPM
         double boostPressure = 0.0;
 
         if (throttle < 20.0) {
             // Low throttle: high vacuum (engine braking)
             boostPressure = -18.0 + (rpm / 1000.0);  // -18 to -10 inHg
             boostPressure = qMax(-20.0, qMin(-8.0, boostPressure));
-        } else if (throttle < 60.0) {
-            // Moderate throttle: reducing vacuum
-            double throttleFactor = (throttle - 20.0) / 40.0;  // 0-1
-            boostPressure = -8.0 + (throttleFactor * 8.0);  // -8 to 0 inHg
+        } else if (throttle < 50.0) {
+            // Moderate throttle: reducing vacuum, slight boost at high RPM
+            double throttleFactor = (throttle - 20.0) / 30.0;  // 0-1
+            double rpmBoost = qMax(0.0, (rpm - 3000.0) / 5000.0);  // Boost starts above 3k RPM
+            boostPressure = -8.0 + (throttleFactor * 8.0) + (rpmBoost * 3.0);  // -8 to +3 PSI
         } else {
-            // High throttle: building boost
-            double throttleFactor = (throttle - 60.0) / 40.0;  // 0-1 at WOT
-            double rpmFactor = (rpm - 2000.0) / 6000.0;  // RPM contribution
+            // High throttle: boost primarily from RPM (belt-driven supercharger)
+            // LT4 boost curve: minimal below 3k RPM, builds linearly, peaks at 11 PSI around 7k+
+            double rpmFactor = (rpm - 2500.0) / 5500.0;  // 0 at 2.5k, 1.0 at 8k RPM
             rpmFactor = qMax(0.0, qMin(1.0, rpmFactor));
 
-            // LT4 makes 11 PSI at peak, boost builds with RPM
-            boostPressure = throttleFactor * rpmFactor * 11.0;  // 0-11 PSI
+            // Throttle modulates max boost (partial throttle = lower ceiling)
+            double throttleFactor = (throttle - 50.0) / 50.0;  // 0 at 50%, 1.0 at WOT
+            throttleFactor = qMax(0.0, qMin(1.0, throttleFactor));
+
+            // Boost builds with RPM, scales with throttle
+            // At WOT: 0 PSI at 2.5k RPM → 11 PSI at 7k+ RPM
+            boostPressure = rpmFactor * throttleFactor * 11.0;
             boostPressure = qMax(0.0, qMin(16.0, boostPressure));
         }
 
