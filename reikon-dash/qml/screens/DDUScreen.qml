@@ -61,7 +61,7 @@ Rectangle {
         anchors.margins: 20
         height: 30
         rpm: root.rpm
-        maxRpm: 8000
+        maxRpm: 10000
     }
 
     // Main content area
@@ -128,7 +128,9 @@ Rectangle {
             RPMGaugeArc {
                 anchors.fill: parent
                 rpm: root.rpm
-                maxRpm: 8000
+                maxRpm: 10000
+                redLine: 7500
+                revLimit: 8200
             }
 
             // Gear number overlaid

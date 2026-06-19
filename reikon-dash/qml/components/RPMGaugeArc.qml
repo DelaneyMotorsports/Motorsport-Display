@@ -22,8 +22,10 @@ Item {
     // Public properties
     property int rpm: 0
     property int minRpm: 0
-    property int maxRpm: 8000
-    property int scaleMarkers: 9
+    property int maxRpm: 10000
+    property int redLine: 7500
+    property int revLimit: 8200
+    property int scaleMarkers: 11  // 0-10 for 10k RPM
 
     // Calculated
     property real progress: Math.max(0, Math.min(1, (rpm - minRpm) / (maxRpm - minRpm)))
@@ -70,7 +72,7 @@ Item {
         }
     }
 
-    // Value arc (cyan with gradient)
+    // Value arc (cyan below redline, red above)
     Shape {
         anchors.fill: parent
         layer.enabled: true
@@ -79,7 +81,7 @@ Item {
         ShapePath {
             id: valueArc
             strokeWidth: root.width * 0.06
-            strokeColor: "#00BFFF"
+            strokeColor: root.rpm >= root.redLine ? "#FF0000" : "#00BFFF"
             fillColor: "transparent"
             capStyle: ShapePath.RoundCap
 
@@ -90,6 +92,35 @@ Item {
                 radiusY: (root.height / 2) - (root.width * 0.08)
                 startAngle: -210
                 sweepAngle: 240 * root.progress
+            }
+
+            Behavior on strokeColor {
+                ColorAnimation { duration: 100 }
+            }
+        }
+    }
+
+    // Red zone indicator (static, shows danger zone)
+    Shape {
+        anchors.fill: parent
+        layer.enabled: true
+        layer.smooth: true
+        opacity: 0.3
+
+        ShapePath {
+            strokeWidth: root.width * 0.06
+            strokeColor: "#FF0000"
+            fillColor: "transparent"
+            capStyle: ShapePath.RoundCap
+
+            PathAngleArc {
+                property real redLineProgress: (root.redLine - root.minRpm) / (root.maxRpm - root.minRpm)
+                centerX: root.width / 2
+                centerY: root.height / 2
+                radiusX: (root.width / 2) - (root.width * 0.08)
+                radiusY: (root.height / 2) - (root.width * 0.08)
+                startAngle: -210 + (240 * redLineProgress)
+                sweepAngle: 240 * (1.0 - redLineProgress)
             }
         }
     }

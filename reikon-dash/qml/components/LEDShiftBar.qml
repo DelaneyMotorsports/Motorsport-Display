@@ -22,18 +22,19 @@ Row {
     property int segmentCount: 8
 
     // RPM thresholds for each segment (percentage of max RPM)
-    property var thresholds: [0.50, 0.60, 0.70, 0.75, 0.80, 0.85, 0.90, 0.95]
+    // Tuned for 10k RPM max, 7500 redline
+    property var thresholds: [0.50, 0.58, 0.65, 0.70, 0.73, 0.75, 0.78, 0.82]
 
-    // Colors for progressive activation
+    // Colors for progressive activation (green → red at redline)
     property var segmentColors: [
-        "#00FF00",  // Green
-        "#7FFF00",  // Yellow-green
-        "#FFFF00",  // Yellow
-        "#FFD700",  // Gold
-        "#FFA500",  // Orange
-        "#FF8C00",  // Dark orange
-        "#FF4500",  // Red-orange
-        "#FF0000"   // Red
+        "#00FF00",  // Green - 5000 RPM
+        "#7FFF00",  // Yellow-green - 5800 RPM
+        "#FFFF00",  // Yellow - 6500 RPM
+        "#FFD700",  // Gold - 7000 RPM
+        "#FFA500",  // Orange - 7300 RPM
+        "#FF0000",  // Red - 7500 RPM (redline)
+        "#FF0000",  // Red - 7800 RPM
+        "#FF0000"   // Red - 8200 RPM (rev limit)
     ]
 
     spacing: 4

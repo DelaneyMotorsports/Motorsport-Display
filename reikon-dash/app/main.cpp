@@ -111,48 +111,158 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("detectedHeight", detectedHeight);
 
     // High-frequency telemetry timer (Bosch DDU pattern: 100 Hz)
+    // Realistic racing lap simulation with gear changes
     QTimer telemetryTimer;
     QObject::connect(&telemetryTimer, &QTimer::timeout, [&vehicleData, &signalBus]() {
-        static double time = 0.0;
+        static double lapTime = 0.0;  // Seconds into lap
         static int cycleCount = 0;
-
-        // Realistic motorsport telemetry simulation
-        // RPM follows a racing acceleration pattern
-        double baseRpm = 2000.0 + 5500.0 * qSin(time * 0.3);  // Smooth 2000-7500 RPM sweep
-        double rpmNoise = (QRandomGenerator::global()->bounded(100) - 50) * 0.5;  // ±25 RPM sensor noise
-        double rpm = qMax(0.0, baseRpm + rpmNoise);
-
-        // Speed correlates with RPM (simulates 5th gear acceleration)
-        double speed = rpm * 0.035;  // ~70-260 km/h range
-
-        // Gear calculation (realistic shift points)
-        int gear = 1;
-        if (rpm > 6500) gear = 6;
-        else if (rpm > 5500) gear = 5;
-        else if (rpm > 4500) gear = 4;
-        else if (rpm > 3500) gear = 3;
-        else if (rpm > 2500) gear = 2;
-
-        // Throttle position (smooth sine wave)
-        double throttle = 50.0 + 50.0 * qSin(time * 0.5);  // 0-100%
-
-        // Coolant temperature (realistic heat-up)
-        double coolantTemp = 70.0 + (rpm / 250.0) + (cycleCount / 100.0);
-        coolantTemp = qMin(120.0, coolantTemp);
-
-        // Oil temperature (lags behind coolant)
-        double oilTemp = 75.0 + (rpm / 300.0) + (cycleCount / 120.0);
-        oilTemp = qMin(135.0, oilTemp);
-
-        // Oil pressure (increases with RPM)
-        double oilPressure = 2.5 + (rpm / 2000.0);
-
-        // Fuel consumption (decreases over time)
         static double fuelPercent = 84.0;
-        fuelPercent -= 0.001;  // Slow burn
-        if (fuelPercent < 0.0) fuelPercent = 100.0;  // Reset for demo
 
-        // Update VehicleData (Q_PROPERTY pattern - direct binding)
+        // Lap phases (seconds): Accel → Straight → Brake → Corner → Repeat
+        const double LAP_DURATION = 60.0;  // 60 second lap
+        double lapPhase = fmod(lapTime, LAP_DURATION);
+
+        int gear = 1;
+        double rpm = 2000.0;
+        double throttle = 0.0;
+        double speed = 0.0;
+
+        // Realistic racing lap simulation
+        if (lapPhase < 8.0) {
+            // Phase 1: Launch and acceleration through gears (0-8s)
+            double accelProgress = lapPhase / 8.0;
+
+            if (accelProgress < 0.15) {
+                // 1st gear: 2000-7200 RPM
+                gear = 1;
+                rpm = 2000.0 + (accelProgress / 0.15) * 5200.0;
+                throttle = 100.0;
+                speed = rpm * 0.015;
+            } else if (accelProgress < 0.30) {
+                // Shift 1→2: brief throttle lift
+                double shiftProg = (accelProgress - 0.15) / 0.15;
+                gear = shiftProg < 0.3 ? 1 : 2;
+                rpm = shiftProg < 0.3 ? 7200.0 - (shiftProg / 0.3) * 3000.0 : 4200.0 + (shiftProg - 0.3) / 0.7 * 3300.0;
+                throttle = shiftProg < 0.3 ? 0.0 : 100.0;
+                speed = 50.0 + shiftProg * 30.0;
+            } else if (accelProgress < 0.45) {
+                // 2nd gear: 4200-7500 RPM
+                gear = 2;
+                rpm = 4200.0 + ((accelProgress - 0.30) / 0.15) * 3300.0;
+                throttle = 100.0;
+                speed = 80.0 + ((accelProgress - 0.30) / 0.15) * 40.0;
+            } else if (accelProgress < 0.60) {
+                // Shift 2→3
+                double shiftProg = (accelProgress - 0.45) / 0.15;
+                gear = shiftProg < 0.3 ? 2 : 3;
+                rpm = shiftProg < 0.3 ? 7500.0 - (shiftProg / 0.3) * 2500.0 : 5000.0 + (shiftProg - 0.3) / 0.7 * 2700.0;
+                throttle = shiftProg < 0.3 ? 0.0 : 100.0;
+                speed = 120.0 + shiftProg * 20.0;
+            } else if (accelProgress < 0.75) {
+                // 3rd gear: 5000-7700 RPM
+                gear = 3;
+                rpm = 5000.0 + ((accelProgress - 0.60) / 0.15) * 2700.0;
+                throttle = 100.0;
+                speed = 140.0 + ((accelProgress - 0.60) / 0.15) * 30.0;
+            } else if (accelProgress < 0.90) {
+                // Shift 3→4
+                double shiftProg = (accelProgress - 0.75) / 0.15;
+                gear = shiftProg < 0.3 ? 3 : 4;
+                rpm = shiftProg < 0.3 ? 7700.0 - (shiftProg / 0.3) * 2200.0 : 5500.0 + (shiftProg - 0.3) / 0.7 * 2500.0;
+                throttle = shiftProg < 0.3 ? 0.0 : 100.0;
+                speed = 170.0 + shiftProg * 20.0;
+            } else {
+                // 4th gear: 5500-8000 RPM
+                gear = 4;
+                rpm = 5500.0 + ((accelProgress - 0.90) / 0.10) * 2500.0;
+                throttle = 100.0;
+                speed = 190.0 + ((accelProgress - 0.90) / 0.10) * 30.0;
+            }
+
+        } else if (lapPhase < 18.0) {
+            // Phase 2: High-speed straight, hit rev limiter in 5th (8-18s)
+            double straightProg = (lapPhase - 8.0) / 10.0;
+
+            if (straightProg < 0.15) {
+                // Shift 4→5
+                double shiftProg = straightProg / 0.15;
+                gear = shiftProg < 0.3 ? 4 : 5;
+                rpm = shiftProg < 0.3 ? 8000.0 - (shiftProg / 0.3) * 2000.0 : 6000.0 + (shiftProg - 0.3) / 0.7 * 2200.0;
+                throttle = shiftProg < 0.3 ? 0.0 : 100.0;
+                speed = 220.0 + shiftProg * 10.0;
+            } else {
+                // 5th gear: bounce off rev limiter at 8200 RPM
+                gear = 5;
+                double rpmTarget = 6000.0 + (straightProg - 0.15) / 0.85 * 2200.0;
+                // Rev limiter: cut ignition above 8200, bounces between 8150-8200
+                if (rpmTarget > 8200.0) {
+                    double bounce = QRandomGenerator::global()->bounded(50);
+                    rpm = 8150.0 + bounce;
+                    throttle = rpmTarget > 8200 ? 50.0 : 100.0;  // Fluttering throttle at limiter
+                } else {
+                    rpm = rpmTarget;
+                    throttle = 100.0;
+                }
+                speed = 230.0 + (straightProg - 0.15) * 30.0;
+            }
+
+        } else if (lapPhase < 28.0) {
+            // Phase 3: Braking and downshifts (18-28s)
+            double brakeProg = (lapPhase - 18.0) / 10.0;
+            throttle = qMax(0.0, 100.0 - brakeProg * 150.0);  // Braking
+
+            if (brakeProg < 0.20) {
+                // 5th gear coasting
+                gear = 5;
+                rpm = 8000.0 - brakeProg / 0.20 * 2500.0;
+                speed = 250.0 - brakeProg / 0.20 * 70.0;
+            } else if (brakeProg < 0.35) {
+                // Downshift 5→4
+                gear = 4;
+                rpm = 5500.0 + (brakeProg - 0.20) / 0.15 * 1000.0;  // Rev match
+                speed = 180.0 - (brakeProg - 0.20) / 0.15 * 30.0;
+            } else if (brakeProg < 0.50) {
+                // Downshift 4→3
+                gear = 3;
+                rpm = 5000.0 + (brakeProg - 0.35) / 0.15 * 1200.0;
+                speed = 150.0 - (brakeProg - 0.35) / 0.15 * 30.0;
+            } else if (brakeProg < 0.65) {
+                // Downshift 3→2
+                gear = 2;
+                rpm = 4500.0 + (brakeProg - 0.50) / 0.15 * 1500.0;
+                speed = 120.0 - (brakeProg - 0.50) / 0.15 * 40.0;
+            } else {
+                // Final braking in 2nd
+                gear = 2;
+                rpm = qMax(3000.0, 6000.0 - (brakeProg - 0.65) / 0.35 * 3000.0);
+                speed = qMax(60.0, 80.0 - (brakeProg - 0.65) / 0.35 * 20.0);
+            }
+
+        } else {
+            // Phase 4: Cornering and back straight (28-60s)
+            double cornerProg = (lapPhase - 28.0) / 32.0;
+            gear = 2;
+            rpm = 3000.0 + cornerProg * 2000.0;
+            throttle = 60.0 + cornerProg * 20.0;
+            speed = 60.0 + cornerProg * 60.0;
+        }
+
+        // Add sensor noise
+        double rpmNoise = (QRandomGenerator::global()->bounded(100) - 50) * 0.3;
+        rpm = qMax(1000.0, qMin(10000.0, rpm + rpmNoise));
+
+        // Temperature simulation
+        double coolantTemp = 75.0 + (rpm / 300.0) + (throttle / 10.0);
+        coolantTemp = qMin(115.0, coolantTemp);
+        double oilTemp = 80.0 + (rpm / 350.0) + (throttle / 12.0);
+        oilTemp = qMin(130.0, oilTemp);
+        double oilPressure = 2.0 + (rpm / 1800.0);
+
+        // Fuel consumption
+        fuelPercent -= (throttle / 100.0) * 0.0008;
+        if (fuelPercent < 5.0) fuelPercent = 95.0;
+
+        // Update telemetry
         vehicleData.setRpm(rpm);
         vehicleData.setSpeed(speed);
         vehicleData.setGear(gear);
@@ -162,13 +272,12 @@ int main(int argc, char *argv[])
         vehicleData.setOilPressure(oilPressure);
         vehicleData.setFuelPercent(fuelPercent);
 
-        // Also update SignalBus for legacy components
         signalBus.setValue("EngineRPM", static_cast<int>(rpm));
         signalBus.setValue("VehicleSpeed", speed);
         signalBus.setValue("CoolantTemp", coolantTemp);
         signalBus.setValue("Gear", gear);
 
-        time += 0.01;  // 10ms increment
+        lapTime += 0.01;
         cycleCount++;
     });
     telemetryTimer.start(10); // 100 Hz update (Bosch DDU standard)
