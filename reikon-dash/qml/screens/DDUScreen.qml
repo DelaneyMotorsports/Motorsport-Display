@@ -125,15 +125,6 @@ Rectangle {
                 height: width
                 pressure: root.boostPressure
             }
-
-            Item { height: 10 * mainContent.textScale } // Spacer
-
-            OilPressureGauge {
-                anchors.horizontalCenter: parent.horizontalCenter
-                width: parent.width * 0.75
-                height: width
-                pressure: root.oilPressure
-            }
         }
 
         // Left side LEDs
@@ -193,6 +184,15 @@ Rectangle {
                 width: parent.width * 0.85
                 speed: root.speed
                 units: "mph"
+            }
+
+            Item { height: 15 * mainContent.textScale } // Spacer
+
+            OilPressureGauge {
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width * 0.75
+                height: width
+                pressure: root.oilPressure
             }
         }
 

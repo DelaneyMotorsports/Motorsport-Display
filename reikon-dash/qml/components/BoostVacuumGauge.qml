@@ -103,7 +103,7 @@ Item {
                     radiusX: 40 * root.scaleFactor
                     radiusY: 40 * root.scaleFactor
                     startAngle: -180
-                    sweepAngle: 90 * (1 + root.pressure / root.maxVacuum)
+                    sweepAngle: 180 + root.needleAngle  // Sync with needle position
                 }
             }
 
@@ -133,7 +133,7 @@ Item {
                     radiusX: 40 * root.scaleFactor
                     radiusY: 40 * root.scaleFactor
                     startAngle: -90
-                    sweepAngle: 90 * (root.pressure / root.maxBoost)
+                    sweepAngle: root.needleAngle  // Sync with needle position (0° to 90°)
                 }
             }
 
