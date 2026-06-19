@@ -116,7 +116,8 @@ int main(int argc, char *argv[])
     QObject::connect(&telemetryTimer, &QTimer::timeout, [&vehicleData, &signalBus]() {
         static double lapTime = 0.0;  // Seconds into lap
         static int cycleCount = 0;
-        static double fuelPercent = 84.0;
+        static double batteryPercent = 84.0;  // Battery/energy state of charge
+        static double prevSpeed = 0.0;  // For brake detection
 
         // Lap phases (seconds): Accel → Straight → Brake → Corner → Repeat
         const double LAP_DURATION = 35.0;  // Faster 35 second lap
@@ -277,9 +278,33 @@ int main(int argc, char *argv[])
         oilTemp = qMin(130.0, oilTemp);
         double oilPressure = 2.0 + (rpm / 1800.0);
 
-        // Fuel consumption
-        fuelPercent -= (throttle / 100.0) * 0.0008;
-        if (fuelPercent < 5.0) fuelPercent = 95.0;
+        // Battery/Energy management (hybrid/electric simulation)
+        // Detect braking (speed decreasing)
+        bool isBraking = (speed < prevSpeed - 5.0);  // Speed dropped >5 kph
+
+        if (throttle > 80.0) {
+            // Hard acceleration: DRAIN battery fast
+            batteryPercent -= 0.015;  // High discharge rate
+        } else if (throttle > 50.0) {
+            // Moderate throttle: slower drain
+            batteryPercent -= 0.005;
+        } else if (isBraking && speed > 30.0) {
+            // Regenerative braking: CHARGE battery (but less than drain)
+            batteryPercent += 0.008;  // Moderate regen
+        } else if (throttle < 20.0 && speed > 50.0) {
+            // Coasting: light regen
+            batteryPercent += 0.002;
+        }
+
+        // Clamp battery percentage
+        batteryPercent = qMax(5.0, qMin(100.0, batteryPercent));
+
+        // Reset when very low (for demo continuity)
+        if (batteryPercent < 10.0 && lapPhase < 1.0) {
+            batteryPercent = 90.0;  // Pit stop recharge
+        }
+
+        prevSpeed = speed;
 
         // Update telemetry
         vehicleData.setRpm(rpm);
@@ -289,7 +314,7 @@ int main(int argc, char *argv[])
         vehicleData.setCoolantTemp(coolantTemp);
         vehicleData.setOilTemp(oilTemp);
         vehicleData.setOilPressure(oilPressure);
-        vehicleData.setFuelPercent(fuelPercent);
+        vehicleData.setFuelPercent(batteryPercent);
 
         signalBus.setValue("EngineRPM", static_cast<int>(rpm));
         signalBus.setValue("VehicleSpeed", speed);
