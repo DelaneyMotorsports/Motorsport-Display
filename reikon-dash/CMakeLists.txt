@@ -75,6 +75,7 @@ qt_add_qml_module(reikon-dash
         qml/components/LapTimerPanel.qml
         qml/components/LEDSideIndicator.qml
         qml/components/BoostVacuumGauge.qml
+        qml/components/OilPressureGauge.qml
         qml/components/BatteryGauge.qml
 )
 

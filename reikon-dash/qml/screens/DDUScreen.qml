@@ -28,6 +28,7 @@ Rectangle {
     property double speed: vehicleData.speed
     property double coolantTemp: vehicleData.coolantTemp
     property double oilTemp: vehicleData.oilTemp
+    property double oilPressure: vehicleData.oilPressure
     property double fuelPercent: vehicleData.fuelPercent
     property double boostPressure: vehicleData.boostPressure
     property bool isCharging: vehicleData.isCharging
@@ -116,13 +117,22 @@ Rectangle {
                 fuelPercent: root.fuelPercent
             }
 
-            Item { height: 20 } // Spacer
+            Item { height: 20 * mainContent.textScale } // Spacer
 
             BoostVacuumGauge {
                 anchors.horizontalCenter: parent.horizontalCenter
                 width: parent.width * 0.85
                 height: width
                 pressure: root.boostPressure
+            }
+
+            Item { height: 15 * mainContent.textScale } // Spacer
+
+            OilPressureGauge {
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width * 0.85
+                height: width
+                pressure: root.oilPressure
             }
         }
 
