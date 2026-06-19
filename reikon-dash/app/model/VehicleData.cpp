@@ -101,6 +101,15 @@ void VehicleData::setFuelPressure(double pressure)
     emit fuelPressureChanged();
 }
 
+void VehicleData::setBoostPressure(double pressure)
+{
+    if (qFuzzyCompare(m_boostPressure, pressure))
+        return;
+
+    m_boostPressure = pressure;
+    emit boostPressureChanged();
+}
+
 void VehicleData::setLapTimePredicted(int ms)
 {
     if (m_lapTimePredicted == ms)

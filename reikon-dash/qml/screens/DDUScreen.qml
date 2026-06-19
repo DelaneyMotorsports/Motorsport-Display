@@ -29,6 +29,7 @@ Rectangle {
     property double coolantTemp: vehicleData.coolantTemp
     property double oilTemp: vehicleData.oilTemp
     property double fuelPercent: vehicleData.fuelPercent
+    property double boostPressure: vehicleData.boostPressure
 
     // Smooth animation on all values (removes CAN signal jitter)
     // Bosch DDU uses 40-60ms smoothing on high-frequency signals
@@ -166,6 +167,14 @@ Rectangle {
                 anchors.horizontalCenter: parent.horizontalCenter
                 speed: root.speed
                 units: "kph"
+            }
+
+            Item { height: 20 } // Spacer
+
+            BoostVacuumGauge {
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width
+                pressure: root.boostPressure
             }
         }
 

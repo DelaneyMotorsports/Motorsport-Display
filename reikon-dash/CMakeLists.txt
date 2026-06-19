@@ -74,6 +74,7 @@ qt_add_qml_module(reikon-dash
         qml/components/SpeedDisplay.qml
         qml/components/LapTimerPanel.qml
         qml/components/LEDSideIndicator.qml
+        qml/components/BoostVacuumGauge.qml
 )
 
 target_link_libraries(reikon-dash PRIVATE Qt6::Core Qt6::Quick)

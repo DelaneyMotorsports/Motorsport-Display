@@ -278,6 +278,29 @@ int main(int argc, char *argv[])
         oilTemp = qMin(130.0, oilTemp);
         double oilPressure = 2.0 + (rpm / 1800.0);
 
+        // Boost/Vacuum calculation (LT4 supercharged)
+        // Supercharger is belt-driven: boost = f(RPM, throttle)
+        double boostPressure = 0.0;
+
+        if (throttle < 20.0) {
+            // Low throttle: high vacuum (engine braking)
+            boostPressure = -18.0 + (rpm / 1000.0);  // -18 to -10 inHg
+            boostPressure = qMax(-20.0, qMin(-8.0, boostPressure));
+        } else if (throttle < 60.0) {
+            // Moderate throttle: reducing vacuum
+            double throttleFactor = (throttle - 20.0) / 40.0;  // 0-1
+            boostPressure = -8.0 + (throttleFactor * 8.0);  // -8 to 0 inHg
+        } else {
+            // High throttle: building boost
+            double throttleFactor = (throttle - 60.0) / 40.0;  // 0-1 at WOT
+            double rpmFactor = (rpm - 2000.0) / 6000.0;  // RPM contribution
+            rpmFactor = qMax(0.0, qMin(1.0, rpmFactor));
+
+            // LT4 makes 11 PSI at peak, boost builds with RPM
+            boostPressure = throttleFactor * rpmFactor * 11.0;  // 0-11 PSI
+            boostPressure = qMax(0.0, qMin(16.0, boostPressure));
+        }
+
         // Battery/Energy management (hybrid/electric simulation)
         // Detect braking (speed decreasing)
         bool isBraking = (speed < prevSpeed - 5.0);  // Speed dropped >5 kph
@@ -315,6 +338,7 @@ int main(int argc, char *argv[])
         vehicleData.setOilTemp(oilTemp);
         vehicleData.setOilPressure(oilPressure);
         vehicleData.setFuelPercent(batteryPercent);
+        vehicleData.setBoostPressure(boostPressure);
 
         signalBus.setValue("EngineRPM", static_cast<int>(rpm));
         signalBus.setValue("VehicleSpeed", speed);

@@ -67,6 +67,9 @@ class VehicleData : public QObject
     Q_PROPERTY(double fuelPercent MEMBER m_fuelPercent NOTIFY fuelPercentChanged)
     Q_PROPERTY(double fuelPressure MEMBER m_fuelPressure NOTIFY fuelPressureChanged)
 
+    // Boost/Vacuum (supercharged engine)
+    Q_PROPERTY(double boostPressure MEMBER m_boostPressure NOTIFY boostPressureChanged)
+
     // Lap timing
     Q_PROPERTY(int lapTimePredicted MEMBER m_lapTimePredicted NOTIFY lapTimePredictedChanged)
     Q_PROPERTY(int lapTimeActual MEMBER m_lapTimeActual NOTIFY lapTimeActualChanged)
@@ -90,6 +93,7 @@ public:
     void setOilPressure(double pressure);
     void setFuelPercent(double percent);
     void setFuelPressure(double pressure);
+    void setBoostPressure(double pressure);
     void setLapTimePredicted(int ms);
     void setLapTimeActual(int ms);
     void setLapTimeDiff(int ms);
@@ -104,6 +108,7 @@ public:
     double oilPressure() const { return m_oilPressure; }
     double fuelPercent() const { return m_fuelPercent; }
     double fuelPressure() const { return m_fuelPressure; }
+    double boostPressure() const { return m_boostPressure; }
     int lapTimePredicted() const { return m_lapTimePredicted; }
     int lapTimeActual() const { return m_lapTimeActual; }
     int lapTimeDiff() const { return m_lapTimeDiff; }
@@ -119,6 +124,7 @@ signals:
     void oilPressureChanged();
     void fuelPercentChanged();
     void fuelPressureChanged();
+    void boostPressureChanged();
     void lapTimePredictedChanged();
     void lapTimeActualChanged();
     void lapTimeDiffChanged();
@@ -141,6 +147,9 @@ private:
     // Fuel telemetry
     double m_fuelPercent = 84.0;
     double m_fuelPressure = 3.5;
+
+    // Boost/Vacuum (PSI for boost, inHg for vacuum)
+    double m_boostPressure = -15.0;  // Start at idle vacuum
 
     // Lap timing (milliseconds)
     int m_lapTimePredicted = 185250;  // 3:05.25
