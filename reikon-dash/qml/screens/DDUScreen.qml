@@ -68,11 +68,15 @@ Rectangle {
 
     // Main content area
     Item {
+        id: mainContent
         anchors.top: shiftLights.bottom
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: footer.top
         anchors.margins: 20
+
+        // Scale factor for text based on screen height
+        property real textScale: Math.max(1.0, root.height / 800.0)
 
         // Left panel: Temperature and Fuel
         Column {
@@ -81,34 +85,34 @@ Rectangle {
             anchors.top: parent.top
             anchors.bottom: parent.bottom
             width: parent.width * 0.25
-            spacing: 30
+            spacing: 30 * mainContent.textScale
 
             Text {
                 text: "TEMP"
-                font.pixelSize: 12
+                font.pixelSize: Math.max(12, 12 * mainContent.textScale)
                 color: "#888888"
             }
 
             TemperatureBar {
                 width: parent.width
-                height: 30
+                height: 30 * mainContent.textScale
                 temperature: root.coolantTemp
                 label: "COOLANT"
             }
 
             TemperatureBar {
                 width: parent.width
-                height: 30
+                height: 30 * mainContent.textScale
                 temperature: root.oilTemp
                 label: "OIL"
             }
 
-            Item { height: 20 } // Spacer
+            Item { height: 20 * mainContent.textScale } // Spacer
 
             FuelGauge {
                 anchors.horizontalCenter: parent.horizontalCenter
-                width: 140
-                height: 140
+                width: parent.width * 0.85
+                height: width
                 fuelPercent: root.fuelPercent
             }
 
@@ -116,6 +120,8 @@ Rectangle {
 
             BoostVacuumGauge {
                 anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width * 0.85
+                height: width
                 pressure: root.boostPressure
             }
         }
@@ -161,7 +167,7 @@ Rectangle {
             anchors.top: parent.top
             anchors.bottom: parent.bottom
             width: parent.width * 0.25
-            spacing: 30
+            spacing: 30 * mainContent.textScale
 
             LapTimerPanel {
                 width: parent.width
@@ -170,10 +176,11 @@ Rectangle {
                 diffTime: 2080         // Demo: +2.08
             }
 
-            Item { height: 40 } // Spacer
+            Item { height: 40 * mainContent.textScale } // Spacer
 
             SpeedDisplay {
                 anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width * 0.85
                 speed: root.speed
                 units: "kph"
             }

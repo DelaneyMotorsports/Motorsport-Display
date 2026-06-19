@@ -34,13 +34,16 @@ Item {
         else return normalColor
     }
 
+    // Scale factor based on height
+    property real scaleFactor: Math.max(1.0, height / 30.0)
+
     // Label
     Text {
         id: labelText
         anchors.left: parent.left
         anchors.top: parent.top
         text: root.label
-        font.pixelSize: 10
+        font.pixelSize: Math.max(10, 10 * root.scaleFactor)
         color: "#888888"
     }
 
@@ -50,8 +53,8 @@ Item {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: labelText.bottom
-        anchors.topMargin: 4
-        height: 20
+        anchors.topMargin: 4 * root.scaleFactor
+        height: 20 * root.scaleFactor
         color: "#0a0a0a"
         border.color: "#444444"
         border.width: 1
@@ -115,9 +118,9 @@ Item {
         Text {
             anchors.left: parent.left
             anchors.verticalCenter: parent.verticalCenter
-            anchors.leftMargin: 6
+            anchors.leftMargin: 6 * root.scaleFactor
             text: "C"
-            font.pixelSize: 10
+            font.pixelSize: Math.max(10, 10 * root.scaleFactor)
             font.bold: true
             color: "#00BFFF"
             style: Text.Outline
@@ -128,9 +131,9 @@ Item {
         Text {
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
-            anchors.rightMargin: 6
+            anchors.rightMargin: 6 * root.scaleFactor
             text: "H"
-            font.pixelSize: 10
+            font.pixelSize: Math.max(10, 10 * root.scaleFactor)
             font.bold: true
             color: "#FF4444"
             style: Text.Outline

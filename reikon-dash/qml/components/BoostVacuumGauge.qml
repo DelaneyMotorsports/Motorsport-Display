@@ -27,8 +27,12 @@ Item {
     property double maxBoost: 16.0   // PSI
     property double maxVacuum: -20.0 // inHg
 
+    // Default size (can be overridden by parent)
     width: 140
     height: 140
+
+    // Scale factor based on actual size
+    property real scaleFactor: Math.min(width, height) / 140.0
 
     // Calculate needle angle: -90° (max vacuum) to +90° (max boost)
     property double needleAngle: {
@@ -46,7 +50,7 @@ Item {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
         text: "BOOST"
-        font.pixelSize: 11
+        font.pixelSize: Math.max(11, 11 * root.scaleFactor)
         font.bold: true
         color: "#00BFFF"
         style: Text.Outline
@@ -57,24 +61,24 @@ Item {
     Item {
         id: dialContainer
         anchors.centerIn: parent
-        anchors.verticalCenterOffset: 8
-        width: 100
-        height: 100
+        anchors.verticalCenterOffset: 8 * root.scaleFactor
+        width: 100 * root.scaleFactor
+        height: 100 * root.scaleFactor
 
         // Background arc (full 180° sweep)
         Shape {
             anchors.fill: parent
             ShapePath {
                 strokeColor: "#333333"
-                strokeWidth: 12
+                strokeWidth: 12 * root.scaleFactor
                 fillColor: "transparent"
                 capStyle: ShapePath.RoundCap
 
                 PathAngleArc {
                     centerX: dialContainer.width / 2
                     centerY: dialContainer.height / 2
-                    radiusX: 40
-                    radiusY: 40
+                    radiusX: 40 * root.scaleFactor
+                    radiusY: 40 * root.scaleFactor
                     startAngle: -180
                     sweepAngle: 180
                 }
@@ -88,15 +92,15 @@ Item {
 
             ShapePath {
                 strokeColor: "#00BFFF"
-                strokeWidth: 10
+                strokeWidth: 10 * root.scaleFactor
                 fillColor: "transparent"
                 capStyle: ShapePath.RoundCap
 
                 PathAngleArc {
                     centerX: dialContainer.width / 2
                     centerY: dialContainer.height / 2
-                    radiusX: 40
-                    radiusY: 40
+                    radiusX: 40 * root.scaleFactor
+                    radiusY: 40 * root.scaleFactor
                     startAngle: -180
                     sweepAngle: 90 * (1 + root.pressure / root.maxVacuum)
                 }
@@ -118,15 +122,15 @@ Item {
                     else if (root.pressure < 10) return "#FFA500" // Orange
                     else return "#FF4444"                         // Red
                 }
-                strokeWidth: 10
+                strokeWidth: 10 * root.scaleFactor
                 fillColor: "transparent"
                 capStyle: ShapePath.RoundCap
 
                 PathAngleArc {
                     centerX: dialContainer.width / 2
                     centerY: dialContainer.height / 2
-                    radiusX: 40
-                    radiusY: 40
+                    radiusX: 40 * root.scaleFactor
+                    radiusY: 40 * root.scaleFactor
                     startAngle: -90
                     sweepAngle: 90 * (root.pressure / root.maxBoost)
                 }
@@ -140,19 +144,19 @@ Item {
         // Center pivot point
         Rectangle {
             anchors.centerIn: parent
-            width: 6
-            height: 6
-            radius: 3
+            width: 6 * root.scaleFactor
+            height: 6 * root.scaleFactor
+            radius: 3 * root.scaleFactor
             color: "#FFFFFF"
             border.color: "#000000"
-            border.width: 1
+            border.width: 1 * root.scaleFactor
         }
 
         // Needle
         Rectangle {
             id: needle
-            width: 35
-            height: 2
+            width: 35 * root.scaleFactor
+            height: 2 * root.scaleFactor
             color: "#FFFFFF"
             x: dialContainer.width / 2
             y: dialContainer.height / 2 - height / 2
@@ -167,9 +171,9 @@ Item {
             Rectangle {
                 anchors.right: parent.right
                 anchors.verticalCenter: parent.verticalCenter
-                width: 4
-                height: 4
-                radius: 2
+                width: 4 * root.scaleFactor
+                height: 4 * root.scaleFactor
+                radius: 2 * root.scaleFactor
                 color: "#FF0000"
             }
         }
@@ -185,10 +189,10 @@ Item {
             ]
 
             Text {
-                x: dialContainer.width / 2 + Math.cos((modelData.angle - 90) * Math.PI / 180) * 52 - width / 2
-                y: dialContainer.height / 2 + Math.sin((modelData.angle - 90) * Math.PI / 180) * 52 - height / 2
+                x: dialContainer.width / 2 + Math.cos((modelData.angle - 90) * Math.PI / 180) * 52 * root.scaleFactor - width / 2
+                y: dialContainer.height / 2 + Math.sin((modelData.angle - 90) * Math.PI / 180) * 52 * root.scaleFactor - height / 2
                 text: modelData.label
-                font.pixelSize: 8
+                font.pixelSize: Math.max(8, 8 * root.scaleFactor)
                 font.bold: true
                 color: "#888888"
             }
@@ -199,7 +203,7 @@ Item {
     Text {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: 2
+        anchors.bottomMargin: 2 * root.scaleFactor
         text: {
             if (root.pressure > 0.1) {
                 return "+" + root.pressure.toFixed(1) + " PSI"
@@ -209,7 +213,7 @@ Item {
                 return "0.0"
             }
         }
-        font.pixelSize: 12
+        font.pixelSize: Math.max(12, 12 * root.scaleFactor)
         font.bold: true
         font.family: "monospace"
         color: root.pressure > 8 ? "#FF4444" : "#FFFFFF"

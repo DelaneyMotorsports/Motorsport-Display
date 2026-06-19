@@ -16,12 +16,15 @@ Column {
     property int actualTime: 0     // milliseconds
     property int diffTime: 0       // milliseconds
 
-    spacing: 8
+    // Scale factor based on parent width
+    property real scaleFactor: Math.max(1.0, width / 200.0)
+
+    spacing: 8 * scaleFactor
 
     Text {
         anchors.horizontalCenter: parent.horizontalCenter
         text: "LAP TIMES"
-        font.pixelSize: 11
+        font.pixelSize: Math.max(11, 11 * root.scaleFactor)
         font.bold: true
         color: "#00BFFF"
         style: Text.Outline
@@ -31,28 +34,28 @@ Column {
     // Predicted time
     Rectangle {
         width: parent.width
-        height: 24
+        height: 24 * root.scaleFactor
         color: "#0a0a0a"
         border.color: "#333333"
-        border.width: 1
-        radius: 2
+        border.width: 1 * root.scaleFactor
+        radius: 2 * root.scaleFactor
 
         Row {
             anchors.fill: parent
-            anchors.margins: 4
-            spacing: 10
+            anchors.margins: 4 * root.scaleFactor
+            spacing: 10 * root.scaleFactor
 
             Text {
                 text: "PREDICTED"
-                font.pixelSize: 10
+                font.pixelSize: Math.max(10, 10 * root.scaleFactor)
                 font.bold: true
                 color: "#888888"
                 anchors.verticalCenter: parent.verticalCenter
-                width: 70
+                width: 70 * root.scaleFactor
             }
             Text {
                 text: formatTime(root.predictedTime)
-                font.pixelSize: 13
+                font.pixelSize: Math.max(13, 13 * root.scaleFactor)
                 font.family: "monospace"
                 font.bold: true
                 color: "#FFFFFF"
@@ -66,28 +69,28 @@ Column {
     // Actual time
     Rectangle {
         width: parent.width
-        height: 24
+        height: 24 * root.scaleFactor
         color: "#0a0a0a"
         border.color: "#333333"
-        border.width: 1
-        radius: 2
+        border.width: 1 * root.scaleFactor
+        radius: 2 * root.scaleFactor
 
         Row {
             anchors.fill: parent
-            anchors.margins: 4
-            spacing: 10
+            anchors.margins: 4 * root.scaleFactor
+            spacing: 10 * root.scaleFactor
 
             Text {
                 text: "ACTUAL"
-                font.pixelSize: 10
+                font.pixelSize: Math.max(10, 10 * root.scaleFactor)
                 font.bold: true
                 color: "#888888"
                 anchors.verticalCenter: parent.verticalCenter
-                width: 70
+                width: 70 * root.scaleFactor
             }
             Text {
                 text: formatTime(root.actualTime)
-                font.pixelSize: 13
+                font.pixelSize: Math.max(13, 13 * root.scaleFactor)
                 font.family: "monospace"
                 font.bold: true
                 color: "#00BFFF"
@@ -101,28 +104,28 @@ Column {
     // Diff time
     Rectangle {
         width: parent.width
-        height: 28
+        height: 28 * root.scaleFactor
         color: "#0a0a0a"
         border.color: root.diffTime >= 0 ? "#00AA00" : "#AA0000"
-        border.width: 2
-        radius: 2
+        border.width: 2 * root.scaleFactor
+        radius: 2 * root.scaleFactor
 
         Row {
             anchors.fill: parent
-            anchors.margins: 4
-            spacing: 10
+            anchors.margins: 4 * root.scaleFactor
+            spacing: 10 * root.scaleFactor
 
             Text {
                 text: "DIFF"
-                font.pixelSize: 11
+                font.pixelSize: Math.max(11, 11 * root.scaleFactor)
                 font.bold: true
                 color: "#AAAAAA"
                 anchors.verticalCenter: parent.verticalCenter
-                width: 70
+                width: 70 * root.scaleFactor
             }
             Text {
                 text: formatDiff(root.diffTime)
-                font.pixelSize: 14
+                font.pixelSize: Math.max(14, 14 * root.scaleFactor)
                 font.family: "monospace"
                 font.bold: true
                 color: root.diffTime >= 0 ? "#00FF00" : "#FF4444"
