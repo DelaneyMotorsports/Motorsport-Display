@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
         static double fuelPercent = 84.0;
 
         // Lap phases (seconds): Accel → Straight → Brake → Corner → Repeat
-        const double LAP_DURATION = 60.0;  // 60 second lap
+        const double LAP_DURATION = 35.0;  // Faster 35 second lap
         double lapPhase = fmod(lapTime, LAP_DURATION);
 
         int gear = 1;
@@ -127,61 +127,61 @@ int main(int argc, char *argv[])
         double throttle = 0.0;
         double speed = 0.0;
 
-        // Realistic racing lap simulation
-        if (lapPhase < 8.0) {
-            // Phase 1: Launch and acceleration through gears (0-8s)
-            double accelProgress = lapPhase / 8.0;
+        // Realistic racing lap simulation - AGGRESSIVE
+        if (lapPhase < 5.0) {
+            // Phase 1: FAST acceleration through gears (0-5s)
+            double accelProgress = lapPhase / 5.0;
 
-            if (accelProgress < 0.15) {
-                // 1st gear: 2000-7200 RPM
+            if (accelProgress < 0.12) {
+                // 1st gear: 2000-7200 RPM FAST
                 gear = 1;
-                rpm = 2000.0 + (accelProgress / 0.15) * 5200.0;
+                rpm = 2000.0 + (accelProgress / 0.12) * 5200.0;
                 throttle = 100.0;
                 speed = rpm * 0.015;
-            } else if (accelProgress < 0.30) {
+            } else if (accelProgress < 0.24) {
                 // Shift 1→2: brief throttle lift
-                double shiftProg = (accelProgress - 0.15) / 0.15;
+                double shiftProg = (accelProgress - 0.12) / 0.12;
                 gear = shiftProg < 0.3 ? 1 : 2;
                 rpm = shiftProg < 0.3 ? 7200.0 - (shiftProg / 0.3) * 3000.0 : 4200.0 + (shiftProg - 0.3) / 0.7 * 3300.0;
                 throttle = shiftProg < 0.3 ? 0.0 : 100.0;
                 speed = 50.0 + shiftProg * 30.0;
-            } else if (accelProgress < 0.45) {
-                // 2nd gear: 4200-7500 RPM
+            } else if (accelProgress < 0.36) {
+                // 2nd gear: 4200-7500 RPM FAST
                 gear = 2;
-                rpm = 4200.0 + ((accelProgress - 0.30) / 0.15) * 3300.0;
+                rpm = 4200.0 + ((accelProgress - 0.24) / 0.12) * 3300.0;
                 throttle = 100.0;
-                speed = 80.0 + ((accelProgress - 0.30) / 0.15) * 40.0;
-            } else if (accelProgress < 0.60) {
+                speed = 80.0 + ((accelProgress - 0.24) / 0.12) * 40.0;
+            } else if (accelProgress < 0.48) {
                 // Shift 2→3
-                double shiftProg = (accelProgress - 0.45) / 0.15;
+                double shiftProg = (accelProgress - 0.36) / 0.12;
                 gear = shiftProg < 0.3 ? 2 : 3;
                 rpm = shiftProg < 0.3 ? 7500.0 - (shiftProg / 0.3) * 2500.0 : 5000.0 + (shiftProg - 0.3) / 0.7 * 2700.0;
                 throttle = shiftProg < 0.3 ? 0.0 : 100.0;
                 speed = 120.0 + shiftProg * 20.0;
-            } else if (accelProgress < 0.75) {
-                // 3rd gear: 5000-7700 RPM
+            } else if (accelProgress < 0.63) {
+                // 3rd gear: 5000-7700 RPM FAST
                 gear = 3;
-                rpm = 5000.0 + ((accelProgress - 0.60) / 0.15) * 2700.0;
+                rpm = 5000.0 + ((accelProgress - 0.48) / 0.15) * 2700.0;
                 throttle = 100.0;
-                speed = 140.0 + ((accelProgress - 0.60) / 0.15) * 30.0;
-            } else if (accelProgress < 0.90) {
+                speed = 140.0 + ((accelProgress - 0.48) / 0.15) * 30.0;
+            } else if (accelProgress < 0.78) {
                 // Shift 3→4
-                double shiftProg = (accelProgress - 0.75) / 0.15;
+                double shiftProg = (accelProgress - 0.63) / 0.15;
                 gear = shiftProg < 0.3 ? 3 : 4;
                 rpm = shiftProg < 0.3 ? 7700.0 - (shiftProg / 0.3) * 2200.0 : 5500.0 + (shiftProg - 0.3) / 0.7 * 2500.0;
                 throttle = shiftProg < 0.3 ? 0.0 : 100.0;
                 speed = 170.0 + shiftProg * 20.0;
             } else {
-                // 4th gear: 5500-8000 RPM
+                // 4th gear: 5500-8000 RPM FAST
                 gear = 4;
-                rpm = 5500.0 + ((accelProgress - 0.90) / 0.10) * 2500.0;
+                rpm = 5500.0 + ((accelProgress - 0.78) / 0.22) * 2500.0;
                 throttle = 100.0;
-                speed = 190.0 + ((accelProgress - 0.90) / 0.10) * 30.0;
+                speed = 190.0 + ((accelProgress - 0.78) / 0.22) * 30.0;
             }
 
-        } else if (lapPhase < 18.0) {
-            // Phase 2: High-speed straight, hit rev limiter in 5th (8-18s)
-            double straightProg = (lapPhase - 8.0) / 10.0;
+        } else if (lapPhase < 12.0) {
+            // Phase 2: High-speed straight, hit rev limiter in 5th (5-12s)
+            double straightProg = (lapPhase - 5.0) / 7.0;
 
             if (straightProg < 0.15) {
                 // Shift 4→5
@@ -206,9 +206,9 @@ int main(int argc, char *argv[])
                 speed = 230.0 + (straightProg - 0.15) * 30.0;
             }
 
-        } else if (lapPhase < 28.0) {
-            // Phase 3: Braking and downshifts (18-28s)
-            double brakeProg = (lapPhase - 18.0) / 10.0;
+        } else if (lapPhase < 20.0) {
+            // Phase 3: HARD braking and downshifts (12-20s)
+            double brakeProg = (lapPhase - 12.0) / 8.0;
             throttle = qMax(0.0, 100.0 - brakeProg * 150.0);  // Braking
 
             if (brakeProg < 0.20) {
@@ -239,12 +239,31 @@ int main(int argc, char *argv[])
             }
 
         } else {
-            // Phase 4: Cornering and back straight (28-60s)
-            double cornerProg = (lapPhase - 28.0) / 32.0;
-            gear = 2;
-            rpm = 3000.0 + cornerProg * 2000.0;
-            throttle = 60.0 + cornerProg * 20.0;
-            speed = 60.0 + cornerProg * 60.0;
+            // Phase 4: AGGRESSIVE cornering and back straight (20-35s)
+            double cornerProg = (lapPhase - 20.0) / 15.0;
+
+            if (cornerProg < 0.4) {
+                // Exit corner in 2nd, rev hard
+                gear = 2;
+                rpm = 3500.0 + (cornerProg / 0.4) * 3700.0;  // 3500→7200 fast
+                throttle = 80.0 + (cornerProg / 0.4) * 20.0;
+                speed = 70.0 + (cornerProg / 0.4) * 60.0;
+            } else {
+                // Quick 2nd→3rd for back straight
+                double prog = (cornerProg - 0.4) / 0.6;
+                if (prog < 0.2) {
+                    gear = prog < 0.1 ? 2 : 3;
+                    rpm = prog < 0.1 ? 7200.0 - (prog / 0.1) * 2200.0 : 5000.0 + (prog - 0.1) / 0.1 * 2500.0;
+                    throttle = prog < 0.1 ? 0.0 : 100.0;
+                    speed = 130.0 + prog * 30.0;
+                } else {
+                    // 3rd gear hard acceleration
+                    gear = 3;
+                    rpm = 5000.0 + ((prog - 0.2) / 0.8) * 2500.0;
+                    throttle = 100.0;
+                    speed = 140.0 + ((prog - 0.2) / 0.8) * 50.0;
+                }
+            }
         }
 
         // Add sensor noise
