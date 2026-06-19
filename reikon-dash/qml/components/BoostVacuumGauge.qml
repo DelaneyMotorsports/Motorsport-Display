@@ -133,7 +133,7 @@ Item {
                     radiusX: 40 * root.scaleFactor
                     radiusY: 40 * root.scaleFactor
                     startAngle: -90
-                    sweepAngle: root.needleAngle  // Sync with needle position (0° to 90°)
+                    sweepAngle: 90 + root.needleAngle  // Sync with needle position
                 }
             }
 
@@ -200,24 +200,36 @@ Item {
         }
     }
 
-    // Digital readout
+    // Digital readout - centered in dial
     Text {
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 2 * root.scaleFactor
+        anchors.centerIn: dialContainer
+        anchors.verticalCenterOffset: 10 * root.scaleFactor
         text: {
             if (root.pressure > 0.1) {
-                return "+" + root.pressure.toFixed(1) + " PSI"
+                return "+" + root.pressure.toFixed(1)
             } else if (root.pressure < -0.5) {
-                return root.pressure.toFixed(1) + " inHg"
+                return root.pressure.toFixed(1)
             } else {
                 return "0.0"
             }
         }
-        font.pixelSize: Math.max(12, 12 * root.scaleFactor)
+        font.pixelSize: Math.max(16, 16 * root.scaleFactor)
         font.bold: true
         font.family: "monospace"
         color: root.pressure > 8 ? "#FF4444" : "#FFFFFF"
+        style: Text.Outline
+        styleColor: "#000000"
+    }
+
+    // Units label
+    Text {
+        anchors.horizontalCenter: dialContainer.horizontalCenter
+        anchors.top: dialContainer.verticalCenter
+        anchors.topMargin: 22 * root.scaleFactor
+        text: root.pressure >= 0 ? "PSI" : "inHg"
+        font.pixelSize: Math.max(9, 9 * root.scaleFactor)
+        font.bold: true
+        color: "#888888"
         style: Text.Outline
         styleColor: "#000000"
     }

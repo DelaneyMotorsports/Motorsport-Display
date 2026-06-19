@@ -106,7 +106,7 @@ Item {
                     radiusX: 40 * root.scaleFactor
                     radiusY: 40 * root.scaleFactor
                     startAngle: -180
-                    sweepAngle: 180 * ((root.pressure - root.minPressure) / (root.maxPressure - root.minPressure))
+                    sweepAngle: 180 + root.needleAngle  // Sync with needle position
                 }
             }
 
@@ -173,16 +173,28 @@ Item {
         }
     }
 
-    // Digital readout
+    // Digital readout - centered in dial
     Text {
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 2 * root.scaleFactor
-        text: root.pressure.toFixed(0) + " PSI"
-        font.pixelSize: Math.max(12, 12 * root.scaleFactor)
+        anchors.centerIn: dialContainer
+        anchors.verticalCenterOffset: 10 * root.scaleFactor
+        text: root.pressure.toFixed(0)
+        font.pixelSize: Math.max(16, 16 * root.scaleFactor)
         font.bold: true
         font.family: "monospace"
         color: root.pressureColor
+        style: Text.Outline
+        styleColor: "#000000"
+    }
+
+    // Units label
+    Text {
+        anchors.horizontalCenter: dialContainer.horizontalCenter
+        anchors.top: dialContainer.verticalCenter
+        anchors.topMargin: 22 * root.scaleFactor
+        text: "PSI"
+        font.pixelSize: Math.max(9, 9 * root.scaleFactor)
+        font.bold: true
+        color: "#888888"
         style: Text.Outline
         styleColor: "#000000"
     }
