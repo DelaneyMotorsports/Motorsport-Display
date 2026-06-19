@@ -182,7 +182,7 @@ Rectangle {
                 anchors.horizontalCenter: parent.horizontalCenter
                 width: parent.width * 0.85
                 speed: root.speed
-                units: "kph"
+                units: "mph"
             }
         }
 

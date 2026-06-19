@@ -38,7 +38,8 @@ Item {
     property double needleAngle: {
         if (pressure < 0) {
             // Vacuum: map -20 to 0 inHg → -90° to 0°
-            return -90 + (90 * (1 + pressure / maxVacuum))
+            // At -20 inHg: -90°, at 0 inHg: 0°
+            return -90 * (pressure / maxVacuum)
         } else {
             // Boost: map 0 to 16 PSI → 0° to 90°
             return 90 * (pressure / maxBoost)
